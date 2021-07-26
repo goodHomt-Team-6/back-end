@@ -6,7 +6,22 @@ const nunjucks = require('nunjucks');
 const path = require('path');
 const cors = require('cors');
 dotenv.config();
+const mongoose = require('mongoose');
 const app = express();
+const router = express.Router();
+
+mongoose.connect('mongodb://localhost:27017/Goodhomt', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  // user: 'test',
+  // pass: 'test',
+});
+
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
 
 app.set('port', process.env.PORT || 8005);
 app.set('view engine', 'html');
@@ -16,11 +31,11 @@ nunjucks.configure('views', {
   watch: true,
 });
 
-//middleware
+// middleware
 app.use(morgan('dev'));
 
 app.use(express.json());
-app.use(express.urlencoded({ extend: true }));
+app.use(express.urlencoded({ extended: false }), router);
 
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
@@ -30,6 +45,27 @@ app.use(cors({ origin: '*', credentials: true }));
 app.get('/', (req, res) => {
   res.render('index');
 });
+
+// middleware
+app.use(morgan('dev'));
+
+app.use(express.urlencoded({ extended: false }), router);
+
+app.use(express.json());
+
+app.use(cookieParser(process.env.COOKIE_SECRET));
+
+app.use(cors({ origin: '*', credentials: true }));
+
+//라우터 연결
+const userRouters = require('./routers/user');
+app.use('/users', [userRouters]);
+
+const exerciseRouter = require('./routers/exercise');
+app.use('/exercises', [exerciseRouter]);
+
+const routineRouters = require('./routers/routine');
+app.use('/routines', [routineRouters]);
 
 //error router
 app.use((req, res, next) => {
