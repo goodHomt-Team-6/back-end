@@ -39,8 +39,6 @@ router.get('/', async (req, res) => {
 
     const result = await Routine.find();
 
-    console.log(result);
-
     res.json({ result });
   } catch (error) {
     console.error(error);
