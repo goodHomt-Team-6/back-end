@@ -29,6 +29,7 @@
     "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "eslint": "^7.31.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",

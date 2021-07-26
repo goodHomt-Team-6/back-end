@@ -5,10 +5,16 @@ const dotenv = require('dotenv');
 const nunjucks = require('nunjucks');
 const path = require('path');
 const cors = require('cors');
+
+const userRouters = require('./routers/user');
+const exerciseRouter = require('./routers/exercise');
+const routineRouters = require('./routers/routine');
+
 dotenv.config();
-const mongoose = require('mongoose');
 const app = express();
 const router = express.Router();
+
+const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost:27017/Goodhomt', {
   useNewUrlParser: true,
@@ -46,25 +52,8 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-// middleware
-app.use(morgan('dev'));
-
-app.use(express.urlencoded({ extended: false }), router);
-
-app.use(express.json());
-
-app.use(cookieParser(process.env.COOKIE_SECRET));
-
-app.use(cors({ origin: '*', credentials: true }));
-
-//라우터 연결
-const userRouters = require('./routers/user');
 app.use('/users', [userRouters]);
-
-const exerciseRouter = require('./routers/exercise');
 app.use('/exercises', [exerciseRouter]);
-
-const routineRouters = require('./routers/routine');
 app.use('/routines', [routineRouters]);
 
 //error router
@@ -74,7 +63,7 @@ app.use((req, res, next) => {
   next(error);
 });
 
-app.use((error, req, res, next) => {
+app.use((error, req, res) => {
   res.locals.message = error.message;
   res.locals.error = error;
   res.status(error.status || 500);
