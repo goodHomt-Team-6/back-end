@@ -3,25 +3,15 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const nunjucks = require('nunjucks');
-const path = require('path');
+// const path = require('path');
 const cors = require('cors');
 dotenv.config();
-const mongoose = require('mongoose');
 const app = express();
 const router = express.Router();
 
-mongoose.connect('mongodb://localhost:27017/Goodhomt', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  // user: 'test',
-  // pass: 'test',
-});
-
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
+//몽구스연결
+const connect = require('./models/index.js');
+connect();
 
 app.set('port', process.env.PORT || 8005);
 app.set('view engine', 'html');
@@ -74,7 +64,7 @@ app.use((req, res, next) => {
   next(error);
 });
 
-app.use((error, req, res, next) => {
+app.use((error, req, res) => {
   res.locals.message = error.message;
   res.locals.error = error;
   res.status(error.status || 500);
