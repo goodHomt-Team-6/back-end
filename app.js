@@ -1,18 +1,25 @@
 const express = require('express');
+const session = require('express-session');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const nunjucks = require('nunjucks');
 // const path = require('path');
 const cors = require('cors');
+const passport = require('passport');
+
 dotenv.config();
+const passportConfig = require('./passport');
+
 const app = express();
+passportConfig();
 const router = express.Router();
 
 //몽구스연결
 const connect = require('./models/index.js');
 connect();
 
+//넌적스 연결
 app.set('port', process.env.PORT || 8005);
 app.set('view engine', 'html');
 
@@ -28,7 +35,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }), router);
 
 app.use(cookieParser(process.env.COOKIE_SECRET));
-
+app.use(
+  session({
+    resave: false,
+    saveUninitialized: false,
+    secret: process.env.COOKIE_SECRET,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+    },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(cors({ origin: '*', credentials: true }));
 
 //router
@@ -36,20 +55,13 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-// middleware
-app.use(morgan('dev'));
-
-app.use(express.urlencoded({ extended: false }), router);
-
-app.use(express.json());
-
-app.use(cookieParser(process.env.COOKIE_SECRET));
-
-app.use(cors({ origin: '*', credentials: true }));
-
 //라우터 연결
-const userRouters = require('./routers/user');
-app.use('/users', [userRouters]);
+
+const auth = require('./routers/auth');
+app.use('/auth', auth);
+
+// const userRouters = require('./routers/user');
+// app.use('/users', [userRouters]);
 
 const exerciseRouter = require('./routers/exercise');
 app.use('/exercises', [exerciseRouter]);
