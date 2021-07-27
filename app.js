@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const nunjucks = require('nunjucks');
-// const path = require('path');
+const path = require('path');
 const cors = require('cors');
 const passport = require('passport');
 
