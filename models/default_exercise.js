@@ -1,19 +1,21 @@
 const Sequelize = require('sequelize');
 
-module.exports = class Routine extends Sequelize.Model {
+module.exports = class Default_Exercise extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        routine: {
+        exerciseName: {
           type: Sequelize.STRING,
+          allowNull: false,
+          unique: true,
         },
       },
       {
         sequelize,
         timestamps: true,
         underscored: false,
-        modelName: 'Routine',
-        tableName: 'routine',
+        modelName: 'Default_Exercise',
+        tableName: 'default_exercise',
         paranoid: false,
         charset: 'utf8',
         collate: 'utf8_general_ci',
@@ -22,13 +24,10 @@ module.exports = class Routine extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Routine.hasMany(db.Routine_Exercise, {
-      foreignKey: 'routineId',
-      sourceKey: 'id',
-    });
-    db.Routine.belongsTo(db.User, {
-      foreignKey: 'userId',
+    db.Default_Exercise.belongsTo(db.Category, {
+      foreignKey: 'categoryId',
       targetKey: 'id',
+      as: 'exerciseList',
     });
   }
 };
