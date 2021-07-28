@@ -8,7 +8,7 @@ const RoutineSchema = new mongoose.Schema({
     type: String,
   },
   routine: {
-    type: Array,
+    type: String,
   },
 });
 
