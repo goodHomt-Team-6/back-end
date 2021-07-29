@@ -4,6 +4,31 @@ const Routine = require('../models/routine');
 const Routine_Exercise = require('../models/routine_exercise');
 const Set = require('../models/set');
 
+//Routine 가져오기
+//authMiddleware
+router.get('/', async (req, res) => {
+  const userId = 1;
+  try {
+    const result = await Routine.findAll({
+      where: { userId },
+      attributes: ['id', 'routineName'],
+      include: [
+        {
+          model: Routine_Exercise,
+          attributes: ['id', 'exerciseName'],
+          as: 'myExercise',
+          include: [{ model: Set }],
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+    res.json({ ok: true, result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ errorMessage: error });
+  }
+});
+
 //Routine 등록
 //authMiddleware
 router.post('/', async (req, res) => {
@@ -35,16 +60,6 @@ router.post('/', async (req, res) => {
       }
     }
     res.status(200).send({ ok: true });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ errorMessage: error });
-  }
-});
-
-//Routine 가져오기
-//authMiddleware
-router.get('/', async (req, res) => {
-  try {
   } catch (error) {
     console.error(error);
     res.status(500).send({ errorMessage: error });

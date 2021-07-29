@@ -1,7 +1,7 @@
 const passport = require('passport');
 const KakaoStrategy = require('passport-kakao').Strategy;
 
-const User = require('../models/User');
+const User = require('../models/user');
 
 module.exports = () => {
   passport.use(
@@ -17,7 +17,7 @@ module.exports = () => {
             snsId: profile.id,
             provider: 'kakao',
           });
-
+          console.log('exUser!!@#', exUser);
           if (exUser) {
             done(null, exUser);
           } else {

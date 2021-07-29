@@ -4,7 +4,7 @@ module.exports = class Routine extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        routine: {
+        routineName: {
           type: Sequelize.STRING,
         },
       },
@@ -25,6 +25,7 @@ module.exports = class Routine extends Sequelize.Model {
     db.Routine.hasMany(db.Routine_Exercise, {
       foreignKey: 'routineId',
       sourceKey: 'id',
+      as: 'myExercise',
     });
     db.Routine.belongsTo(db.User, {
       foreignKey: 'userId',

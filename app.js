@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
@@ -9,6 +10,7 @@ const passport = require('passport');
 
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
+const { swaggerUi, specs } = require('./swaggers/swagger');
 
 const auth = require('./routes/auth');
 const exerciseRouter = require('./routes/exercise');
@@ -45,12 +47,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }), router);
 
 app.use(cookieParser(process.env.COOKIE_SECRET));
+const sessionOption = {
+  resave: false,
+  saveUninitialized: false,
+  secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  },
+  name: 'session-cookie',
+};
+//https 적용할때만
+if (process.env.NODE_ENV === 'production') {
+  sessionOption.proxy = true;
+  sessionOption.cookie.secure = true;
+}
+app.use(session(sessionOption));
 
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({ origin: '*', credentials: true }));
 
 //라우터 연결
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 app.get('/', (req, res) => {
   res.render('index');
 });

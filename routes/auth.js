@@ -18,7 +18,6 @@ router.get(
     failureMessage: 'kakao 로그인에 실패하였습니다',
   }),
   (req, res) => {
-    console.log('req.User!!!', req.user);
     res.json({ ok: true, message: '로그인 성공!' });
   }
 );
@@ -34,7 +33,6 @@ router.get(
     failureMessage: '구글 로그인에 실패하였습니다',
   }),
   (req, res) => {
-    console.log('req.User!!!', req.user);
     res.json({ ok: true, message: '로그인 성공!' });
   }
 );

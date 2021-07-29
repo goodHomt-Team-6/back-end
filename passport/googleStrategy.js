@@ -1,7 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
-const User = require('../models/User');
+const User = require('../models/user');
 
 module.exports = () => {
   passport.use(
@@ -18,6 +18,7 @@ module.exports = () => {
             snsId: profile.id,
             provider: 'google',
           });
+          console.log('exUser!!!!', exUser);
           if (exUser) {
             done(null, exUser);
           } else {
