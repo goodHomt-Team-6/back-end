@@ -9,16 +9,16 @@ paths:
      responses:
       200:
        description: 운동 조회 성공
- /exercises/{id}:
+ /exercises/{categoryId}:
    get:
      summary: 카테고리 별 운동 조회
      tags:
        - exercise
      parameters:
-       - name: id
+       - name: categoryId
          in: path
          required: true
-         description: The id of the exercise to retrieve
+         description: The id of the category to retrieve exercise
          schema:
          type: string
      responses:
