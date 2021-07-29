@@ -1,0 +1,30 @@
+paths:
+ /exercises:
+  get:
+     tags:
+     - exercise
+     description: 모든 운동 조회
+     produces:
+     - application/json
+     responses:
+      200:
+       description: 운동 조회 성공
+ /exercises/{id}:
+   get:
+     summary: 카테고리 별 운동 조회
+     tags:
+       - exercise
+     parameters:
+       - name: id
+         in: path
+         required: true
+         description: The id of the exercise to retrieve
+         schema:
+         type: string
+     responses:
+       200:
+        description: Expected response to a valid request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/default_exercise'

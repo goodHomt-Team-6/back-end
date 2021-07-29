@@ -3,6 +3,11 @@ const router = express.Router();
 const Category = require('../models/category');
 const Default_Exercise = require('../models/default_exercise');
 
+/**
+ *  @swagger
+ *    $ref: 'swagger/exerciseAPI.yml'
+ */
+
 //전체 조회
 router.get('/', async (req, res) => {
   try {

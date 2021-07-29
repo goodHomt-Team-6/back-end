@@ -4,10 +4,15 @@ const Routine = require('../models/routine');
 const Routine_Exercise = require('../models/routine_exercise');
 const Set = require('../models/set');
 
+/**
+ *  @swagger
+ *    $ref: 'swagger/routineAPI.yml'
+ */
+
 //Routine 가져오기
 //authMiddleware
 router.get('/', async (req, res) => {
-  const userId = 1;
+  const userId = 3;
   try {
     const result = await Routine.findAll({
       where: { userId },
@@ -34,10 +39,10 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { myExercise } = req.body;
-
+    console.log(myExercise);
     if (myExercise) {
       const routine = await Routine.create({
-        userId: 1,
+        userId: 3,
       });
       for (let i = 0; i < myExercise.length; i++) {
         const { exerciseName, set } = myExercise[i];

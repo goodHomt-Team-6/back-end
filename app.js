@@ -10,7 +10,7 @@ const passport = require('passport');
 
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
-const { swaggerUi, specs } = require('./swaggers/swagger');
+const { swaggerUi, specs } = require('./swagger/swagger');
 
 const auth = require('./routes/auth');
 const exerciseRouter = require('./routes/exercise');
