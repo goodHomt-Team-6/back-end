@@ -1,12 +1,12 @@
 const passport = require('passport');
 
-module.exports = (req, res, next) =>
+exports.authenticateJWT = (req, res, next) =>
   passport.authenticate('jwt', { sessions: false }, (error, user, message) => {
     if (user) {
-      req.user = user;
+      req.loginUser = user;
       next();
     } else {
-      const error = new Error('인증정보가 올바르지 않습니다');
+      const error = new Error(message);
       error.status = 403;
       next(error);
     }
