@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Community_Routine = require('../mongoose_models/community_routine');
-const User = require('../models/user');
+const { authenticateJWT } = require('../middlewares/authenticateJWT');
 
 //커뮤니티 루틴 등록
-router.post('/', async (req, res) => {
+router.post('/', authenticateJWT, async (req, res) => {
   // const {
   //   routine: {
   //     routineName,
@@ -14,25 +14,28 @@ router.post('/', async (req, res) => {
   //   },
   // } = req.body;
 
-  const { routineName, routine_id, exerciseName, set, user } = req.body;
+  const { routineName, routine_id, exerciseName, set } = req.body;
+  const userEmail = req.loginUser.user.email;
 
   try {
-    // const user = await User.findOne({
-    //   where: { id: user_id },
-    // });
-
-    const cr = new Community_Routine({
-      routineName,
-      routine_id,
-      exerciseName,
-      set,
-      user,
-    });
-    await cr.save();
-    res.status(200).send({ message: 'success' });
+    if (!req.loginUser.user) {
+      res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
+      return;
+    }
+    if (req.loginUser.user) {
+      const cr = new Community_Routine({
+        routineName,
+        routine_id,
+        exerciseName,
+        set,
+        userEmail,
+      });
+      await cr.save();
+      res.status(200).send({ message: 'success' });
+    }
   } catch (error) {
     console.error(error);
-    res.status(400).json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -43,7 +46,7 @@ router.get('/', async (req, res) => {
     res.status(200).send({ result });
   } catch (error) {
     console.error(error);
-    res.status(400).json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -54,15 +57,27 @@ router.get('/:id', async (req, res) => {
     res.status(200).send({ result });
   } catch (error) {
     console.error(error);
-    res.status(400).json(error);
+    res.status(500).json(error);
   }
 });
 
 //커뮤니티 루틴 삭제하기
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateJWT, async (req, res) => {
+  const userEmail = req.loginUser.user.email;
+  const routine = await Community_Routine.findById(req.params.id);
   try {
-    await Community_Routine.findByIdAndDelete(req.params.id);
-    res.status(200).send({ message: 'success' });
+    if (!req.loginUser.user) {
+      res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
+      return;
+    }
+    if (userEmail !== routine.userEmai) {
+      res.status(500).json({ errorMessage: '사용자가 일치하지 않습니다.' });
+      return;
+    }
+    if (userEmail === routine.userEmail) {
+      await Community_Routine.findByIdAndDelete(req.params.id);
+      res.status(200).send({ message: 'success' });
+    }
   } catch (error) {
     console.error(error);
     res.status(400).json(error);

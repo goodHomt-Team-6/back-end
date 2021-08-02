@@ -15,7 +15,7 @@ const Community_RoutineSchema = new mongoose.Schema({
   set: {
     type: Array,
   },
-  user: {
+  userEmail: {
     type: String,
   },
   comment: [commentSchema],

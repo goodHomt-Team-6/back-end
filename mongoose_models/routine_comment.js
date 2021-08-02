@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const Routine_CommentSchema = new mongoose.Schema({
-  user: {
+  userEmail: {
     type: String,
   },
   comment: {
