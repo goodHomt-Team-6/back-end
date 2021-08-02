@@ -6,6 +6,8 @@ module.exports = (req, res, next) =>
       req.user = user;
       next();
     } else {
-      res.redirect('/');
+      const error = new Error('인증정보가 올바르지 않습니다');
+      error.status = 403;
+      next(error);
     }
   })(req, res, next);

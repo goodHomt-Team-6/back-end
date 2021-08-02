@@ -93,10 +93,8 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res) => {
-  res.locals.message = error.message;
-  res.locals.error = error;
   res.status(error.status || 500);
-  res.render('error');
+  res.json({ ok: false, errorMesaage: error.message });
 });
 
 app.listen(app.get('port'), () => {
