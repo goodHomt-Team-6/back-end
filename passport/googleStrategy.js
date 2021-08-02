@@ -1,6 +1,6 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-
+const { Op } = require('sequelize');
 const User = require('../models/user');
 
 module.exports = () => {
@@ -15,8 +15,9 @@ module.exports = () => {
         console.log('google profile', profile);
         try {
           const exUser = await User.findOne({
-            snsId: profile.id,
-            provider: 'google',
+            where: {
+              [Op.and]: [{ snsId: profile.id }, { provider: 'google' }],
+            },
           });
           console.log('exUser!!!!', exUser);
           if (exUser) {
@@ -24,7 +25,7 @@ module.exports = () => {
           } else {
             const newUser = await User.create({
               email: profile._json && profile._json.email,
-              nick: profile.displayName,
+              nickname: profile.displayName,
               snsId: profile.id,
               provider: 'google',
             });

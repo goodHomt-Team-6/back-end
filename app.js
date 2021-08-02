@@ -16,6 +16,8 @@ const auth = require('./routes/auth');
 const exerciseRouter = require('./routes/exercise');
 const routineRouter = require('./routes/routine');
 
+const { authenticateJWT } = require('./middlewares/authenticateJWT');
+
 dotenv.config();
 
 const app = express();
@@ -70,13 +72,15 @@ app.use(session(sessionOption));
 
 app.use(passport.initialize());
 app.use(passport.session());
+
 app.use(cors({ origin: '*', credentials: true }));
 
 //라우터 연결
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-app.get('/', (req, res) => {
-  res.render('index');
+app.get('/', authenticateJWT, (req, res) => {
+  res.json({ ok: true, user: req.loginUser });
+  // res.render('index');
 });
 
 app.use('/auth', auth);
@@ -92,7 +96,7 @@ app.use((req, res, next) => {
   next(error);
 });
 
-app.use((error, req, res) => {
+app.use((error, req, res, next) => {
   res.status(error.status || 500);
   res.json({ ok: false, errorMesaage: error.message });
 });

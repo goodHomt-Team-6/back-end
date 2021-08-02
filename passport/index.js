@@ -1,6 +1,7 @@
 const passport = require('passport');
 const kakao = require('./kakaoStrategy');
 const google = require('./googleStrategy');
+const jwt = require('./jwtStrategy');
 
 const User = require('../models/user');
 
@@ -10,13 +11,15 @@ module.exports = () => {
   });
 
   passport.deserializeUser((id, done) => {
-    User.findOne({ id })
-      .then((user) => {
-        done(null, user);
-      })
-      .catch((err) => done(err));
+    done(null, 'No session');
+    // User.findOne({ id })
+    //   .then((user) => {
+    //     done(null, user);
+    //   })
+    //   .catch((err) => done(err));
   });
 
   kakao();
   google();
+  jwt();
 };
