@@ -15,6 +15,8 @@ const { swaggerUi, specs } = require('./swagger/swagger');
 const auth = require('./routes/auth');
 const exerciseRouter = require('./routes/exercise');
 const routineRouter = require('./routes/routine');
+const community_routineRouter = require('./routes/community_routine');
+const routine_commentRouter = require('./routes/routine_comment');
 
 const { authenticateJWT } = require('./middlewares/authenticateJWT');
 
@@ -88,6 +90,10 @@ app.use('/auth', auth);
 app.use('/exercises', exerciseRouter);
 
 app.use('/routines', routineRouter);
+
+app.use('/community_routine', community_routineRouter);
+
+app.use('/routine_comment', routine_commentRouter);
 
 //error router
 app.use((req, res, next) => {
