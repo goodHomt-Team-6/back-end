@@ -3,11 +3,21 @@ const commentSchema = require('./routine_comment').schema;
 const likeSchema = require('./routine_like').schema;
 
 const Community_RoutineSchema = new mongoose.Schema({
-  routineName: {},
-  routine_id: {},
-  exerciseName: {},
-  set: {},
-  user: {},
+  routineName: {
+    type: String,
+  },
+  routine_id: {
+    type: String,
+  },
+  exerciseName: {
+    type: Array,
+  },
+  set: {
+    type: Array,
+  },
+  user: {
+    type: String,
+  },
   comment: [commentSchema],
   like: [likeSchema],
 });
