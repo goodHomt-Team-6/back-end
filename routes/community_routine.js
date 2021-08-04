@@ -4,17 +4,17 @@ const Community_Routine = require('../mongoose_models/community_routine');
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
 
 //커뮤니티 루틴 등록
-router.post('/', authenticateJWT, async (req, res) => {
-  // const {
-  //   routine: {
-  //     routineName,
-  //     routine_id,
-  //     myExercise: { exerciseName, set },
-  //     user_id,
-  //   },
-  // } = req.body;
+//authenticateJWT
+router.post('/', async (req, res) => {
+  const {
+    routine: {
+      routineName,
+      routine_id,
+      myExercise: { exerciseName, set },
+    },
+  } = req.body;
 
-  const { routineName, routine_id, exerciseName, set } = req.body;
+  // const { routineName, routine_id, exerciseName, set, userEmail } = req.body;
   const userEmail = req.loginUser.user.email;
 
   try {
@@ -80,7 +80,7 @@ router.delete('/:id', authenticateJWT, async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(400).json(error);
+    res.status(500).json(error);
   }
 });
 
