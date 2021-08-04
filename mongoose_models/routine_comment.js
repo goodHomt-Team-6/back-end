@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const moment = require('moment-timezone');
+const seoulTime = moment
+  .tz(new Date(), 'Asia/Seoul')
+  .format('YYYY-MM-DD HH:mm:ss');
 
 const Routine_CommentSchema = new mongoose.Schema({
   userEmail: {
@@ -6,6 +10,10 @@ const Routine_CommentSchema = new mongoose.Schema({
   },
   comment: {
     type: String,
+  },
+  createdAt: {
+    type: String,
+    default: seoulTime,
   },
 });
 
