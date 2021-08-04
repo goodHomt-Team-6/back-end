@@ -38,11 +38,12 @@ router.get('/', async (req, res) => {
 //authMiddleware
 router.post('/', async (req, res) => {
   try {
-    const { myExercise } = req.body;
+    const { routineName, myExercise } = req.body;
     console.log(myExercise);
     if (myExercise) {
       const routine = await Routine.create({
         userId: 3,
+        routineName,
       });
       for (let i = 0; i < myExercise.length; i++) {
         const { exerciseName, set } = myExercise[i];

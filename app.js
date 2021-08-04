@@ -75,13 +75,14 @@ app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(cors({ origin: '*', credentials: true }));
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 //라우터 연결
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get('/', authenticateJWT, (req, res) => {
-  res.json({ ok: true, user: req.loginUser });
+  console.log('token:!@#!@#', req.loginUser);
+  res.json({ ok: true, loginUser: req.loginUser });
   // res.render('index');
 });
 
