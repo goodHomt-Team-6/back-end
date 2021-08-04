@@ -8,9 +8,11 @@ module.exports = class User extends Sequelize.Model {
         email: {
           type: Sequelize.STRING,
           allowNull: false,
-          unique: true,
         },
         nickname: {
+          type: Sequelize.STRING,
+        },
+        img: {
           type: Sequelize.STRING,
         },
         age: {
@@ -23,6 +25,9 @@ module.exports = class User extends Sequelize.Model {
         snsId: {
           type: Sequelize.STRING,
           allowNull: false,
+        },
+        refreshToken: {
+          type: Sequelize.STRING,
         },
       },
       {
