@@ -17,14 +17,9 @@ router.post('/kakaoLogin', getKakaoUser, async (req, res) => {
   const profile = req.kakao;
   const [accessToken, refreshToken] = await jwtCreate(profile);
 
-  const basicInfo = {
-    email: profile.kakao_account.email,
-    nickname: profile.kakao_account.profile.nickname,
-    img: profile.kakao_account.profile.profile_image_url,
-  };
   res.json({
     ok: true,
-    loginUser: loginUser(basicInfo, accessToken, refreshToken),
+    loginUser: loginUser(accessToken, refreshToken),
   });
 });
 

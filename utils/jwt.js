@@ -3,8 +3,6 @@ const User = require('../models/user');
 const { Op } = require('sequelize');
 
 exports.jwtCreate = async (profile) => {
-  console.log('process.env.JWT!!@#', process.env.JWT_SECRET);
-
   const basicInfo = {
     email: profile.kakao_account.email,
     nickname: profile.kakao_account.profile.nickname,
@@ -12,7 +10,7 @@ exports.jwtCreate = async (profile) => {
   };
 
   const refreshToken = jwt.sign({}, process.env.JWT_SECRET, {
-    expiresIn: '14d',
+    expiresIn: process.env.REFRESHTOKEN_EXPIRE,
   });
 
   try {
@@ -39,7 +37,7 @@ exports.jwtCreate = async (profile) => {
       });
     }
     const accessToken = jwt.sign(basicInfo, process.env.JWT_SECRET, {
-      expiresIn: '1m',
+      expiresIn: process.env.ACCESSTOKEN_EXPIRE,
     });
     return [accessToken, refreshToken];
   } catch (error) {

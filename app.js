@@ -55,27 +55,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }), router);
 
 app.use(cookieParser(process.env.COOKIE_SECRET));
-const sessionOption = {
-  resave: false,
-  saveUninitialized: false,
-  secret: process.env.COOKIE_SECRET,
-  cookie: {
-    httpOnly: true,
-    secure: false,
-  },
-  name: 'session-cookie',
-};
-//https 적용할때만
-if (process.env.NODE_ENV === 'production') {
-  sessionOption.proxy = true;
-  sessionOption.cookie.secure = true;
-}
-app.use(session(sessionOption));
+// const sessionOption = {
+//   resave: false,
+//   saveUninitialized: false,
+//   secret: process.env.COOKIE_SECRET,
+//   cookie: {
+//     httpOnly: true,
+//     secure: false,
+//   },
+//   name: 'session-cookie',
+// };
+// //https 적용할때만
+// if (process.env.NODE_ENV === 'production') {
+//   sessionOption.proxy = true;
+//   sessionOption.cookie.secure = true;
+// }
+// app.use(session(sessionOption));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({ origin: '*', credentials: true }));
 
 //라우터 연결
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));

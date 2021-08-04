@@ -1,6 +1,6 @@
-exports.loginUser = (user, accessToken, refreshToken) => {
+exports.loginUser = (accessToken, refreshToken) => {
   return {
-    user,
+    //user,
     token: { accessToken, refreshToken },
   };
 };
