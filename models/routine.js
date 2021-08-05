@@ -7,6 +7,21 @@ module.exports = class Routine extends Sequelize.Model {
         routineName: {
           type: Sequelize.STRING,
         },
+        isBookmarked: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+        },
+        isCompleted: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+        },
+        routinTime: {
+          type: Sequelize.INTEGER,
+          defaultValue: 0,
+        },
+        rating: {
+          type: Sequelize.STRING,
+        },
       },
       {
         sequelize,
