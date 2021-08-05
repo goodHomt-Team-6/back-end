@@ -16,7 +16,7 @@ router.get('/', authenticateJWT, async (req, res) => {
       order: [['createdAt', 'DESC']],
     });
 
-    res.json({ ok: true, result, loginUser: req.loginUser });
+    res.json({ ok: true, result });
   } catch (error) {
     console.error(error);
     res.status(500).send({ errorMessage: error });
@@ -41,7 +41,7 @@ router.get('/:categoryId', authenticateJWT, async (req, res) => {
       ],
     });
 
-    res.json({ ok: true, result, loginUser: req.loginUser });
+    res.json({ ok: true, result });
   } catch (error) {
     console.error(error);
     res.status(500).send({ errorMessage: error });

@@ -17,6 +17,7 @@ exports.getKakaoUser = async (req, res, next) => {
     });
     req.kakao = profile;
     console.log('profile!!!!', profile.data);
+
     // req.kakao = {
     //   id: 1834436063,
     //   connected_at: '2021-08-03T12:57:02Z',

@@ -82,7 +82,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get('/', authenticateJWT, (req, res) => {
   console.log('token:!@#!@#', req.loginUser);
-  res.json({ ok: true, loginUser: req.loginUser });
+  res.json({ ok: true });
   // res.render('index');
 });
 

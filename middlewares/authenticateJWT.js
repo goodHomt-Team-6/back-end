@@ -19,10 +19,11 @@ exports.authenticateJWT = async (req, res, next) => {
     console.log('accessToken Expired!!!');
     if (irefreshToken) {
       const info = await User.findOne({
-        attributes: ['email', 'nickname', 'img'],
+        attributes: ['id', 'email', 'nickname', 'img'],
         where: { refreshToken },
       });
       const basicInfo = {
+        id: info.id,
         email: info.email,
         nickname: info.nickname,
         img: info.img,
@@ -31,12 +32,18 @@ exports.authenticateJWT = async (req, res, next) => {
         expiresIn: process.env.ACCESSTOKEN_EXPIRE,
       });
       req.loginUser = loginUser(accessToken, refreshToken);
+      req.userId = info.id;
       next();
     } else {
-      res.json({ ok: false, message: '로그인이 필요합니다.' });
+      res.json({
+        ok: false,
+        needsLogin: true,
+        message: '로그인이 필요합니다.',
+      });
     }
   } else {
     req.loginUser = loginUser(accessToken, refreshToken);
+    req.userId = iAccessToken.id;
     next();
   }
 };

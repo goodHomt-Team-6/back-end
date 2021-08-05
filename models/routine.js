@@ -15,7 +15,7 @@ module.exports = class Routine extends Sequelize.Model {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
-        routinTime: {
+        routineTime: {
           type: Sequelize.INTEGER,
           defaultValue: 0,
         },
