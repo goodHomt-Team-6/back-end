@@ -10,7 +10,13 @@ module.exports = class Set extends Sequelize.Model {
         count: {
           type: Sequelize.INTEGER,
         },
-        time: {
+        setCount: {
+          type: Sequelize.INTEGER,
+        },
+        minutes: {
+          type: Sequelize.INTEGER,
+        },
+        seconds: {
           type: Sequelize.INTEGER,
         },
         type: {

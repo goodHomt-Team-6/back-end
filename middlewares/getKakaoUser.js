@@ -10,10 +10,13 @@ exports.getKakaoUser = async (req, res, next) => {
     const profile = await axios({
       method: 'get',
       url: 'https://kapi.kakao.com/v2/user/me',
-      headers: { Authorization },
+      headers: {
+        'content-Type': 'application/x-www-form-urlencoded',
+        Authorization,
+      },
     });
     req.kakao = profile;
-    console.log('profile!!!!', profile);
+    console.log('profile!!!!', profile.data);
     // req.kakao = {
     //   id: 1834436063,
     //   connected_at: '2021-08-03T12:57:02Z',

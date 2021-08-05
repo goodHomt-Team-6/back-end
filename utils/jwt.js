@@ -4,18 +4,21 @@ const { Op } = require('sequelize');
 
 exports.jwtCreate = async (profile) => {
   const basicInfo = {
-    email: profile.kakao_account.email,
-    nickname: profile.kakao_account.profile.nickname,
-    img: profile.kakao_account.profile.profile_image_url,
+    email: profile.data.kakao_account.email || null,
+    nickname: profile.data.kakao_account.profile.nickname || null,
+    img: profile.data.kakao_account.profile.profile_image_url || null,
   };
 
+  const snsId = profile.data?.id;
+  console.log('snsId!!!!!!!', snsId);
+  console.log(profile.data.kakao_account.profile);
   const refreshToken = jwt.sign({}, process.env.JWT_SECRET, {
     expiresIn: process.env.REFRESHTOKEN_EXPIRE,
   });
 
   try {
     const exUser = await User.findOne({
-      where: { [Op.and]: [{ snsId: profile.id }, { provider: 'kakao' }] },
+      where: { [Op.and]: [{ snsId }, { provider: 'kakao' }] },
     });
     console.log('exUser!!@#', exUser);
     if (exUser) {
@@ -25,13 +28,13 @@ exports.jwtCreate = async (profile) => {
           refreshToken,
         },
         {
-          where: { snsId: profile.id },
+          where: { snsId },
         }
       );
     } else {
       await User.create({
         ...basicInfo,
-        snsId: profile.id,
+        snsId,
         provider: 'kakao',
         refreshToken,
       });
