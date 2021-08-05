@@ -12,13 +12,12 @@ const { sequelize } = require('./models');
 const passportConfig = require('./passport');
 const { swaggerUi, specs } = require('./swagger/swagger');
 
-const auth = require('./routes/auth');
+const tokenRouter = require('./routes/tokens');
+const authRouter = require('./routes/auth');
 const exerciseRouter = require('./routes/exercise');
 const routineRouter = require('./routes/routine');
 const community_routineRouter = require('./routes/community_routine');
 const routine_commentRouter = require('./routes/routine_comment');
-
-const { authenticateJWT } = require('./middlewares/authenticateJWT');
 
 dotenv.config();
 
@@ -80,13 +79,14 @@ app.use(cors({ origin: '*', credentials: true }));
 //라우터 연결
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-app.get('/', authenticateJWT, (req, res) => {
-  console.log('token:!@#!@#', req.loginUser);
+app.get('/', (req, res) => {
   res.json({ ok: true });
   // res.render('index');
 });
 
-app.use('/auth', auth);
+app.use('/tokens', tokenRouter);
+
+app.use('/auth', authRouter);
 
 app.use('/exercises', exerciseRouter);
 
