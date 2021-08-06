@@ -33,6 +33,7 @@ exports.authenticateJWT = async (req, res, next) => {
       });
       req.loginUser = loginUser(accessToken, refreshToken);
       req.userId = info.id;
+      req.userInfo = { id: info.id, nickname: info.nickname };
       next();
     } else {
       res.json({
@@ -44,6 +45,7 @@ exports.authenticateJWT = async (req, res, next) => {
   } else {
     req.loginUser = loginUser(accessToken, refreshToken);
     req.userId = iAccessToken.id;
+    req.userInfo = { id: iAccessToken.id, nickname: iAccessToken.nickname };
     next();
   }
 };

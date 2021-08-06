@@ -33,7 +33,7 @@ router.get('/', authenticateJWT, async (req, res) => {
       where: {
         [Op.and]: [{ userId }, where],
       },
-      attributes: ['id', 'routineName'],
+      attributes: ['id', 'routineName', 'createdAt'],
       include: [
         {
           model: Routine_Exercise,

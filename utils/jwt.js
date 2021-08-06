@@ -20,7 +20,7 @@ exports.jwtCreate = async (profile) => {
     const exUser = await User.findOne({
       where: { [Op.and]: [{ snsId }, { provider: 'kakao' }] },
     });
-    console.log('exUser!!!', exUser.id);
+    // console.log('exUser!!!', exUser.id);
 
     if (exUser) {
       await User.update(
