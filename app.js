@@ -16,8 +16,11 @@ const tokenRouter = require('./routes/tokens');
 const authRouter = require('./routes/auth');
 const exerciseRouter = require('./routes/exercise');
 const routineRouter = require('./routes/routine');
-const community_routineRouter = require('./routes/community_routine');
+const communityRouter = require('./routes/community');
+const challengeRouter = require('./routes/challenge');
 const routine_commentRouter = require('./routes/routine_comment');
+const routine_likeRouter = require('./routes/routine_like');
+const adminRouter = require('./routes/admin');
 
 dotenv.config();
 
@@ -92,9 +95,15 @@ app.use('/exercises', exerciseRouter);
 
 app.use('/routines', routineRouter);
 
-app.use('/community_routine', community_routineRouter);
+app.use('/community', communityRouter);
 
-app.use('/routine_comment', routine_commentRouter);
+app.use('/challenge', challengeRouter);
+
+app.use('/comment', routine_commentRouter);
+
+app.use('/like', routine_likeRouter);
+
+app.use('/admin', adminRouter);
 
 //error router
 app.use((req, res, next) => {

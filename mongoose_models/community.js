@@ -6,28 +6,25 @@ const seoulTime = moment
   .tz(new Date(), 'Asia/Seoul')
   .format('YYYY-MM-DD HH:mm:ss');
 
-const Community_RoutineSchema = new mongoose.Schema({
+const CommunitySchema = new mongoose.Schema({
   routineName: {
     type: String,
   },
-  routine_id: {
-    type: String,
-  },
-  exerciseName: {
+  myExercise: {
     type: Array,
   },
-  set: {
-    type: Array,
+  userId: {
+    type: Number,
   },
-  userEmail: {
+  nickname: {
     type: String,
   },
+  comment: [commentSchema],
+  like: [likeSchema],
   createdAt: {
     type: String,
     default: seoulTime,
   },
-  comment: [commentSchema],
-  like: [likeSchema],
 });
 
-module.exports = mongoose.model('Community_Routine', Community_RoutineSchema);
+module.exports = mongoose.model('Community', CommunitySchema);
