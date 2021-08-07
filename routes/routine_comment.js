@@ -1,21 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const Community_Routine = require('../mongoose_models/community_routine');
+const Community = require('../mongoose_models/community');
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
 
 //댓글등록
-router.post('/', authenticateJWT, async (req, res) => {
+router.post('/:routineId', authenticateJWT, async (req, res) => {
   const { comment } = req.body;
-  const userEmail = req.loginUser.user.email;
+  const userId = req.userInfo.id;
+  const nickname = req.userInfo.nickname;
 
   try {
-    if (!req.loginUser.user) {
+    if (!req.userInfo) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
       return;
     }
-    if (req.loginUser.user) {
-      await Community_Routine.findByIdAndUpdate(req.params.id, {
-        $push: { comment: { userEmail, comment } },
+    if (req.userInfo) {
+      await Community.findByIdAndUpdate(req.params.routineId, {
+        $push: { comment: { userId, comment, nickname } },
       });
       res.status(200).send({ message: 'success' });
     }
@@ -26,23 +27,23 @@ router.post('/', authenticateJWT, async (req, res) => {
 });
 
 //댓글삭제
-router.delete('/:id', authenticateJWT, async (req, res) => {
-  const userEmail = req.loginUser.user.email;
-  const routine = await Community_Routine.findById(req.params.id);
+router.delete('/:routineId', authenticateJWT, async (req, res) => {
+  const userId = req.userInfo.id;
+  const routine = await Community.findById(req.params.routineId);
 
   try {
-    if (!req.loginUser.user) {
+    if (!req.userInfo.id) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
       return;
     }
-    if (userEmail !== routine.userEmail) {
+    if (userId !== routine.userId) {
       res.status(500).json({ errorMessage: '사용자가 일치하지 않습니다.' });
       return;
     }
 
-    if (userEmail === routine.userEmail) {
-      await Community_Routine.findByIdAndUpdate(req.params.id, {
-        $pull: { comment: { userEmail: userEmail } },
+    if (userId === routine.userId) {
+      await Community.findByIdAndUpdate(req.params.routineId, {
+        $pull: { comment: { userId: userId } },
       });
       res.status(200).send({ message: 'success' });
     }

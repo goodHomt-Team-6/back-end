@@ -5,8 +5,14 @@ const seoulTime = moment
   .format('YYYY-MM-DD HH:mm:ss');
 
 const Routine_LikeSchema = new mongoose.Schema({
-  userEmail: {
+  userId: {
+    type: Number,
+    required: true,
+    unique: true,
+  },
+  nickname: {
     type: String,
+    required: true,
   },
   createdAt: {
     type: String,

@@ -1,26 +1,25 @@
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
+const ChallengeUserSchema = require('./challenge_user').schema;
 const seoulTime = moment
   .tz(new Date(), 'Asia/Seoul')
   .format('YYYY-MM-DD HH:mm:ss');
 
-const Routine_CommentSchema = new mongoose.Schema({
-  userId: {
-    type: Number,
-    required: true,
-  },
-  nickname: {
+const ChallengeSchema = new mongoose.Schema({
+  challengeName: {
     type: String,
-    required: true,
   },
-  comment: {
+  routine: {
+    type: Array,
+  },
+  Description: {
     type: String,
-    required: true,
   },
+  challengeUser: [ChallengeUserSchema],
   createdAt: {
     type: String,
     default: seoulTime,
   },
 });
 
-module.exports = mongoose.model('Routine_Comment', Routine_CommentSchema);
+module.exports = mongoose.model('Challenge', ChallengeSchema);

@@ -4,16 +4,12 @@ const seoulTime = moment
   .tz(new Date(), 'Asia/Seoul')
   .format('YYYY-MM-DD HH:mm:ss');
 
-const Routine_CommentSchema = new mongoose.Schema({
+const Challenge_UserSchema = new mongoose.Schema({
   userId: {
     type: Number,
-    required: true,
+    unique: true,
   },
   nickname: {
-    type: String,
-    required: true,
-  },
-  comment: {
     type: String,
     required: true,
   },
@@ -23,4 +19,4 @@ const Routine_CommentSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Routine_Comment', Routine_CommentSchema);
+module.exports = mongoose.model('Challenge_User', Challenge_UserSchema);
