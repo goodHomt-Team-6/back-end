@@ -11,6 +11,13 @@ module.exports = class Challenge extends Sequelize.Model {
         challengeIntroduce: {
           type: Sequelize.STRING,
         },
+        progressStatus: {
+          type: Sequelize.STRING,
+          defaultValue: 'start',
+        },
+        challengeDateTime: {
+          type: Sequelize.DATE,
+        },
       },
       {
         sequelize,

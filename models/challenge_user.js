@@ -7,26 +7,22 @@ module.exports = class Challenge_User extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        userId: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          // references: {
-          //   model: User,
-          //   key: 'id',
-          // },
-        },
-        challengeId: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          // references: {
-          //   model: Challenge,
-          //   key: 'id',
-          // },
-        },
-        attendStatus: {
-          type: Sequelize.STRING,
-          defaultValue: 'start',
-        },
+        // userId: {
+        //   type: Sequelize.INTEGER,
+        //   allowNull: false,
+        //   // references: {
+        //   //   model: User,
+        //   //   key: 'id',
+        //   // },
+        // },
+        // challengeId: {
+        //   type: Sequelize.INTEGER,
+        //   allowNull: false,
+        //   // references: {
+        //   //   model: Challenge,
+        //   //   key: 'id',
+        //   // },
+        // },
         successYn: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
@@ -46,15 +42,15 @@ module.exports = class Challenge_User extends Sequelize.Model {
   }
 
   static associate(db) {
-    // db.Challenge_User.belongsTo(db.User, {
-    //   as: 'User',
-    //   foreignKey: 'userId',
-    //   targetKey: 'id',
-    // });
-    // db.Challenge_User.belongsTo(db.Challenge, {
-    //   as: 'Challenge',
-    //   foreignKey: 'challengeId',
-    //   targetKey: 'id',
-    // });
+    db.Challenge_User.belongsTo(db.User, {
+      as: 'User',
+      foreignKey: 'userId',
+      targetKey: 'id',
+    });
+    db.Challenge_User.belongsTo(db.Challenge, {
+      as: 'Challenge',
+      foreignKey: 'challengeId',
+      targetKey: 'id',
+    });
   }
 };

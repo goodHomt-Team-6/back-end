@@ -97,7 +97,7 @@ app.use('/routines', routineRouter);
 
 app.use('/community', communityRouter);
 
-app.use('/challenge', challengeRouter);
+app.use('/challenges', challengeRouter);
 
 app.use('/comment', routine_commentRouter);
 
