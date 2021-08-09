@@ -7,6 +7,7 @@ const Challenge = require('../models/challenge');
 const Challenge_User = require('../models/challenge_user');
 const Challenge_Exercise = require('../models/challenge_exercise');
 const Challenge_Set = require('../models/challenge_set');
+const User = require('../models/user');
 
 const { find, getDeadLineYn } = require('../utils/challenge');
 const { sequelize } = require('../models');
@@ -138,6 +139,28 @@ router.post('/', authenticateJWT, async (req, res) => {
   }
 });
 
+//챌린지 기록하기
+router.patch('/record', authenticateJWT, async (req, res) => {
+  const userId = req.userId;
+
+  try {
+    const user = await User.findByPk(userId);
+    console.log('userStamp', user.stamp);
+    await User.update(
+      {
+        stamp: user.stamp + 1,
+      },
+      {
+        where: { id: userId },
+      }
+    );
+    res.json({ ok: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ errorMessage: error });
+  }
+});
+
 //챌린지 참여하기
 router.patch('/:challengeId', authenticateJWT, async (req, res) => {
   const userId = req.userId;
@@ -197,5 +220,4 @@ router.delete('/:challengeId', authenticateJWT, async (req, res) => {
 
 //챌린지 참여인원
 
-//챌린지 기록하기
 module.exports = router;
