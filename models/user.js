@@ -25,6 +25,9 @@ module.exports = class User extends Sequelize.Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        stamp: {
+          type: Sequelize.INTEGER,
+        },
         refreshToken: {
           type: Sequelize.STRING,
         },
@@ -45,5 +48,9 @@ module.exports = class User extends Sequelize.Model {
   static associate(db) {
     db.User.hasMany(db.User_Custom, { foreignKey: 'userId', sourceKey: 'id' });
     db.User.hasMany(db.Routine, { foreignKey: 'userId', sourceKey: 'id' });
+    // db.User.hasMany(db.Challenge_User, {
+    //   foreignKey: 'userId',
+    //   sourceKey: 'id',
+    // });
   }
 };

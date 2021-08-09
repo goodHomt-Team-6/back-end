@@ -1,0 +1,38 @@
+const Sequelize = require('sequelize');
+
+//user
+module.exports = class Challenge extends Sequelize.Model {
+  static init(sequelize) {
+    return super.init(
+      {
+        challengeName: {
+          type: Sequelize.STRING,
+        },
+        challengeIntroduce: {
+          type: Sequelize.STRING,
+        },
+      },
+      {
+        sequelize,
+        timestamps: true,
+        underscored: false,
+        modelName: 'Challenge',
+        tableName: 'challenge',
+        paranoid: false,
+        charset: 'utf8',
+        collate: 'utf8_general_ci',
+      }
+    );
+  }
+
+  static associate(db) {
+    db.Challenge.hasMany(db.Challenge_Exercise, {
+      foreignKey: 'challengeId',
+      sourceKey: 'id',
+    });
+    // db.Challenge.hasMany(db.Challenge_User, {
+    //   foreignKey: 'challengeId',
+    //   sourceKey: 'id',
+    // });
+  }
+};

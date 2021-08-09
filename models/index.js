@@ -6,6 +6,10 @@ const Routine = require('./routine');
 const Routine_Exercise = require('./routine_exercise');
 const Set = require('./set');
 const User_Custom = require('./user_custom');
+// const Challenge = require('./challenge');
+// const Challenge_Exercise = require('./challenge_exercise');
+// const Challenge_Set = require('./challenge_set');
+// const Challenge_User = require('./challenge_user');
 
 const env = process.env.NODE_ENV || 'development';
 const config = require('../config/config')[env];
@@ -26,7 +30,10 @@ db.Default_Exercise = Default_Exercise;
 db.Routine = Routine;
 db.Routine_Exercise = Routine_Exercise;
 db.Set = Set;
-db.User_Custom = User_Custom;
+// db.Challenge = Challenge;
+// db.Challenge_Exercise = Challenge_Exercise;
+// db.Challenge_Set = Challenge_Set;
+// db.Challenge_User = Challenge_User;
 
 User.init(sequelize);
 Category.init(sequelize);
@@ -34,7 +41,11 @@ Default_Exercise.init(sequelize);
 Routine.init(sequelize);
 Routine_Exercise.init(sequelize);
 Set.init(sequelize);
-User_Custom.init(sequelize);
+// User_Custom.init(sequelize);
+// Challenge.init(sequelize);
+// Challenge_Exercise.init(sequelize);
+// Challenge_Set.init(sequelize);
+// Challenge_User.init(sequelize);
 
 User.associate(db);
 Category.associate(db);
@@ -42,6 +53,10 @@ Default_Exercise.associate(db);
 Routine.associate(db);
 Routine_Exercise.associate(db);
 Set.associate(db);
-User_Custom.associate(db);
+// User_Custom.associate(db);
+// Challenge.associate(db);
+// Challenge_Exercise.associate(db);
+// Challenge_Set.associate(db);
+// Challenge_User.associate(db);
 
 module.exports = db;
