@@ -138,8 +138,56 @@ router.post('/', authenticateJWT, async (req, res) => {
   }
 });
 
+//챌린지 참여하기
+router.patch('/:challengeId', authenticateJWT, async (req, res) => {
+  const userId = req.userId;
+  const { challengeId } = req.params;
+
+  try {
+    const [result, metadate] =
+      await sequelize.query(`SELECT ( case when date_format(now(), '%Y%m%d%H%i')-C.challengeDateTime >= 0 then 'end' 
+                                            ELSE 'start'
+	                             END ) as status
+                               from challenge as C where id = ${challengeId};`);
+    if (result[0]?.status === 'end') {
+      return res.json({ ok: false, message: '마감 된 챌린지입니다.' });
+    }
+    await Challenge_User.create({
+      challengeId,
+      userId,
+    });
+    res.json({ ok: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ errorMessage: error });
+  }
+});
+
 //챌린지 참여 취소하기
-router.post('/', async (req, res) => {});
+router.delete('/:challengeId', authenticateJWT, async (req, res) => {
+  const userId = req.userId;
+  const { challengeId } = req.params;
+
+  try {
+    const [result, metadate] =
+      await sequelize.query(`SELECT ( case when date_format(now(), '%Y%m%d%H%i')-C.challengeDateTime >= 0 then 'end' 
+                                            ELSE 'start'
+	                             END ) as status
+                               from challenge as C where id = ${challengeId};`);
+    if (result[0]?.status === 'end') {
+      return res.json({ ok: false, message: '마감 된 챌린지입니다.' });
+    }
+    await Challenge_User.destroy({
+      where: {
+        [Op.and]: [{ challengeId }, { userId }],
+      },
+    });
+    res.json({ ok: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ errorMessage: error });
+  }
+});
 
 //챌린지 참여인원
 
