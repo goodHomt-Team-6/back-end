@@ -8,7 +8,7 @@ const Challenge_User = require('../models/challenge_user');
 const Challenge_Exercise = require('../models/challenge_exercise');
 const Challenge_Set = require('../models/challenge_set');
 
-const { find } = require('../utils/challenge');
+const { find, getDeadLineYn } = require('../utils/challenge');
 const { sequelize } = require('../models');
 
 //챌린지 가져오기
@@ -144,13 +144,23 @@ router.patch('/:challengeId', authenticateJWT, async (req, res) => {
   const { challengeId } = req.params;
 
   try {
-    const [result, metadate] =
-      await sequelize.query(`SELECT ( case when date_format(now(), '%Y%m%d%H%i')-C.challengeDateTime >= 0 then 'end' 
-                                            ELSE 'start'
-	                             END ) as status
-                               from challenge as C where id = ${challengeId};`);
-    if (result[0]?.status === 'end') {
+    const status = await getDeadLineYn(challengeId);
+
+    if (status === 'end') {
       return res.json({ ok: false, message: '마감 된 챌린지입니다.' });
+    }
+
+    const exist = await Challenge_User.findOne({
+      where: {
+        [Op.and]: [{ challengeId }, { userId }],
+      },
+    });
+
+    if (exist) {
+      return res.json({
+        ok: false,
+        message: '이미 해당 챌린지에 참가신청 한 사용자 입니다.',
+      });
     }
     await Challenge_User.create({
       challengeId,
@@ -169,12 +179,8 @@ router.delete('/:challengeId', authenticateJWT, async (req, res) => {
   const { challengeId } = req.params;
 
   try {
-    const [result, metadate] =
-      await sequelize.query(`SELECT ( case when date_format(now(), '%Y%m%d%H%i')-C.challengeDateTime >= 0 then 'end' 
-                                            ELSE 'start'
-	                             END ) as status
-                               from challenge as C where id = ${challengeId};`);
-    if (result[0]?.status === 'end') {
+    const status = await getDeadLineYn(challengeId);
+    if (status === 'end') {
       return res.json({ ok: false, message: '마감 된 챌린지입니다.' });
     }
     await Challenge_User.destroy({
