@@ -16,7 +16,7 @@ module.exports = class Challenge extends Sequelize.Model {
           defaultValue: 'start',
         },
         challengeDateTime: {
-          type: Sequelize.DATE,
+          type: Sequelize.STRING,
         },
       },
       {
