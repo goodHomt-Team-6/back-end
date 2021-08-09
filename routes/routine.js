@@ -59,6 +59,7 @@ router.get('/:id', authenticateJWT, async (req, res) => {
     const result = await Routine.findAll({
       attributes: [
         'id',
+        'routineName',
         'routineTime',
         'rating',
         'isBookmarked',
