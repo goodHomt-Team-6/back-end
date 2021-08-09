@@ -1,15 +1,24 @@
 const httpMocks = require('node-mocks-http');
 // jest.mock('../../models/user');
 const Challenge = require('../../models/challenge');
+const Challenge_User = require('../../models/challenge_user');
 const challengeController = require('../../controllers/challenge');
 const newData = require('../data.json');
 
 describe('ChallengeRoutes', () => {
+  let req;
+  let res;
+  beforeEach(() => {
+    req = httpMocks.createRequest();
+    res = httpMocks.createResponse();
+  });
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
   describe('전체 challenge 가져오기', () => {
-    const req = httpMocks.createRequest();
-    const res = httpMocks.createResponse();
-    res.json = jest.fn();
     Challenge.findAll = jest.fn();
+
     it('allChallenge는 함수이어야 함', () => {
       expect(typeof challengeController.allChallenge).toBe('function');
     });
@@ -30,9 +39,80 @@ describe('ChallengeRoutes', () => {
     });
   });
 
-  //   // it.todo('사용자별 참가 전 challenge 가져오기');
-  //   // it.todo('사용자별 참가 후 challenge 가져오기');
-  //   // it.todo('챌린지별 상세 데이터 가져오기');
+  describe('사용자별 참가 전 challenge 가져오기', () => {
+    it('challengeForUserBeforeJoin는 함수이어야 함', () => {
+      expect(typeof challengeController.challengeForUserBeforeJoin).toBe(
+        'function'
+      );
+    });
+    it('challengeForUserBeforeJoin에서 findAll함수가 한번 호출 되어야 함', async () => {
+      await challengeController.challengeForUserBeforeJoin(req, res);
+      expect(Challenge_User.findAll).toBeCalledTimes(1);
+    });
+    it('challengeForUserBeforeJoin에서 정상적으로 findAll함수가 호출 되었을 때, res는 200상태를 응답해야함', async () => {
+      await challengeController.challengeForUserBeforeJoin(req, res);
+      expect(res.statusCode).toBe(200);
+    });
+    it('challengeForUserBeforeJoin에서 비정상적으로 findAll함수가 호출 되었을 때, res는 error값을 응답해야 함', async () => {
+      Challenge_User.findAll = jest.fn(() => {
+        throw new Error();
+      });
+      await challengeController.challengeForUserBeforeJoin(req, res);
+      expect(res.statusCode).toBe(500);
+    });
+  });
+
+  describe('사용자별 마감 후 challenge 가져오기', () => {
+    Challenge_User.findAll = jest.fn();
+
+    it('challengeForUserAfterJoin는 함수이어야 함', () => {
+      expect(typeof challengeController.challengeForUserAfterJoin).toBe(
+        'function'
+      );
+    });
+    it('challengeForUserAfterJoin에서 findAll함수가 한번 호출 되어야 함', async () => {
+      await challengeController.challengeForUserAfterJoin(req, res);
+      expect(Challenge_User.findAll).toBeCalledTimes(1);
+    });
+    it('challengeForUserAfterJoin에서 정상적으로 findAll함수가 호출 되었을 때, res는 200상태를 응답해야함', async () => {
+      console.log('statusCODE!!@#', res.statusCode);
+      await challengeController.challengeForUserAfterJoin(req, res);
+      expect(res.statusCode).toBe(200);
+    });
+    it('challengeForUserAfterJoin에서 비정상적으로 findAll함수가 호출 되었을 때, res는 error값을 응답해야 함', async () => {
+      Challenge_User.findAll = jest.fn(() => {
+        throw new Error();
+      });
+      await challengeController.challengeForUserAfterJoin(req, res);
+      expect(res.statusCode).toBe(500);
+    });
+  });
+
+  describe('챌린지별 상세 데이터 가져오기', () => {
+    Challenge_User.findOne = jest.fn();
+    Challenge.findOne = jest.fn();
+    it('getChallengeDetail는 함수이어야 함', () => {
+      expect(typeof challengeController.getChallengeDetail).toBe('function');
+    });
+    it('getChallengeDetail에서 findOne함수가 한번씩 호출 되어야 함', async () => {
+      await challengeController.getChallengeDetail(req, res);
+      expect(Challenge_User.findOne).toBeCalledTimes(1);
+      expect(Challenge.findOne).toBeCalledTimes(1);
+    });
+    it('getChallengeDetail에서 정상적으로  findOne함수가 호출 되었을 때, res는 200상태를 응답해야함', async () => {
+      req.params = { challengeId: 1 };
+      await challengeController.getChallengeDetail(req, res);
+      expect(res.statusCode).toBe(200);
+    });
+    it('getChallengeDetail에서 비정상적으로  findOne함수가 호출 되었을 때, res는 error값을 응답해야 함', async () => {
+      Challenge_User.findOne = jest.fn(() => {
+        throw new Error();
+      });
+      await challengeController.getChallengeDetail(req, res);
+      expect(res.statusCode).toBe(500);
+    });
+  });
+
   //   // it.todo('챌린지 등록하기');
   //   // it.todo('챌린지 기록하기');
   //   // it.todo('챌린지 참여하기');
