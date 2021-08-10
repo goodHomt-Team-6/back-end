@@ -3,3 +3,4 @@ node_modules/
 uploads/
 .vscode/
 spartaNod1.pem
+coverage/

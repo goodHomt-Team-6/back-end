@@ -44,7 +44,6 @@ exports.challengeForUserBeforeJoin = async (req, res) => {
 
 exports.challengeForUserAfterJoin = async (req, res) => {
   const userId = req.userId;
-  console.log('userId', userId);
   try {
     const result = await Challenge_User.findAll({
       where: { userId },
@@ -81,11 +80,10 @@ exports.getChallengeDetail = async (req, res) => {
     });
 
     const challenge = await Challenge.findOne(find({ id: challengeId }));
-
-    let cnt = userCount === null ? 0 : userCount.cnt;
+    let cnt = !userCount ? 0 : userCount.cnt;
     res.status(200).json({ ok: true, result: { challenge, userCount: cnt } });
   } catch (error) {
-    console.error(error);
+    console.error('error!@#!@#', error);
     res.status(500).json(error);
   }
 };
@@ -96,7 +94,6 @@ exports.makeChallenge = async (req, res) => {
   try {
     const { challengeName, challengeIntroduce, challengeDateTime, exercises } =
       req.body;
-
     if (exercises) {
       const challenge = await Challenge.create({
         userId,
@@ -140,7 +137,6 @@ exports.makeRecord = async (req, res) => {
 
   try {
     const user = await User.findByPk(userId);
-    console.log('userStamp', user.stamp);
     await User.update(
       {
         stamp: user.stamp + 1,
@@ -163,9 +159,10 @@ exports.joinChallenge = async (req, res) => {
 
   try {
     const status = await getDeadLineYn(challengeId);
-    console.log('status', status);
     if (status === 'end') {
-      return res.json({ ok: false, message: '마감 된 챌린지입니다.' });
+      return res
+        .status(400)
+        .json({ ok: false, message: '마감 된 챌린지입니다.' });
     }
 
     const exist = await Challenge_User.findOne({
@@ -173,7 +170,6 @@ exports.joinChallenge = async (req, res) => {
         [Op.and]: [{ challengeId }, { userId }],
       },
     });
-    console.log('exist', exist);
     if (exist) {
       return res.json({
         ok: false,

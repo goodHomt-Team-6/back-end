@@ -4,9 +4,13 @@ const { Op } = require('sequelize');
 
 exports.jwtCreate = async (profile) => {
   const basicInfo = {
-    email: profile.data?.kakao_account?.email || null,
-    nickname: profile.data?.kakao_account?.profile.nickname || null,
-    img: profile.data?.kakao_account?.profile.profile_image_url || null,
+    email: profile.data?.kakao_account?.email || profile.kakao_account?.email,
+    nickname:
+      profile.data?.kakao_account?.profile.nickname ||
+      profile.kakao_account?.profile.nickname,
+    img:
+      profile.data?.kakao_account?.profile.profile_image_url ||
+      profile.kakao_account?.profile.profile_image_url,
   };
 
   const snsId = profile.data?.id || profile.id;

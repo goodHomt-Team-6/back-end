@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
 
 const { getKakaoUser } = require('../middlewares/getKakaoUser');
 const { jwtCreate } = require('../utils/jwt');
@@ -22,43 +21,5 @@ router.post('/kakaoLogin', getKakaoUser, async (req, res) => {
     loginUser: loginUser(accessToken, refreshToken),
   });
 });
-
-// router.get('/kakao', passport.authenticate('kakao'));
-
-// router.get(
-//   '/kakao/callback',
-//   passport.authenticate('kakao', {
-//     failureRedirect: '/auth/kakao',
-//   }),
-//   (req, res) => {
-//     res.redirect(`http://localhost:3000/token=${createJwt(req.user)}`);
-//     // res.json({
-//     //   ok: true,
-//     //   message: 'kakao 로그인 성공!',
-//     //   token: ,
-//     // });
-//   }
-// );
-
-// router.get(
-//   '/google',
-//   passport.authenticate('google', { scope: ['profile', 'email'] })
-// );
-
-// router.get(
-//   '/google/callback',
-//   passport.authenticate('google', {
-//     failureRedirect: '/auth/google',
-//   }),
-//   (req, res) => {
-//     res.redirect(`http://localhost:3000/token=${createJwt(req.user)}`);
-//     // createJwt(req.user);
-//     // res.json({
-//     //   ok: true,
-//     //   message: 'google 로그인 성공!',
-//     //   token: createJwt(req.user),
-//     // });
-//   }
-// );
 
 module.exports = router;

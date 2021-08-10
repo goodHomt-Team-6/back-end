@@ -177,29 +177,43 @@ describe('ChallengeRoutes', () => {
 
   describe('챌린지 참여하기', () => {
     beforeEach(() => {
-      User.findByPk = jest.fn();
-      User.update = jest.fn();
-      User.findByPk.mockReturnValue({ id: 1, stamp: 0 });
+      Challenge_User.findOne = jest.fn();
+      Challenge_User.findOne.mockReturnValue({ id: 1 });
+      Challenge_User.create = jest.fn();
+      req.params = { challengeId: 1 };
     });
 
-    it('makeRecord는 함수이어야 함', () => {
-      expect(typeof challengeController.makeRecord).toBe('function');
+    it('joinChallenge는 함수이어야 함', () => {
+      expect(typeof challengeController.joinChallenge).toBe('function');
     });
-    it('makeRecord에서 findbk, update 함수가 호출되어야 함', async () => {
-      await challengeController.makeRecord(req, res);
-      expect(User.findByPk).toBeCalledTimes(1);
-      expect(User.update).toBeCalledTimes(1);
-    });
-    it('makeRecord가 정상적이면 res는 200상태를 응답해야함', async () => {
-      await challengeController.makeRecord(req, res);
+    it('joinChallenge가 정상적이면 res는 200상태를 응답해야함', async () => {
+      await challengeController.joinChallenge(req, res);
       expect(res.statusCode).toBe(200);
     });
-    it('makeRecord에서 비정상적으로  findOne함수가 호출 되었을 때, res는 error값을 응답해야 함', async () => {
-      User.findByPk.mockReset();
-      await challengeController.makeRecord(req, res);
+    it('joinChallenge에서 비정상적으로  findOne함수가 호출 되었을 때, res는 error값을 응답해야 함', async () => {
+      req.params = {};
+      await challengeController.joinChallenge(req, res);
       expect(res.statusCode).toBe(500);
     });
   });
 
-  //   // it.todo('챌린지 참여취소하기');
+  describe('챌린지 참여취소하기', () => {
+    beforeEach(() => {
+      Challenge_User.destroy = jest.fn();
+      req.params = { challengeId: 1 };
+    });
+
+    it('cancelChallenge는 함수이어야 함', () => {
+      expect(typeof challengeController.cancelChallenge).toBe('function');
+    });
+    it('cancelChallenge가 정상적이면 res는 200상태를 응답해야함', async () => {
+      await challengeController.cancelChallenge(req, res);
+      expect(res.statusCode).toBe(200);
+    });
+    it('cancelChallenge에서 비정상적으로  findOne함수가 호출 되었을 때, res는 error값을 응답해야 함', async () => {
+      req.params = {};
+      await challengeController.cancelChallenge(req, res);
+      expect(res.statusCode).toBe(500);
+    });
+  });
 });
