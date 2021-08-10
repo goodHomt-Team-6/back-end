@@ -1,9 +1,12 @@
 const httpMocks = require('node-mocks-http');
-// jest.mock('../../models/user');
+
 const Challenge = require('../../models/challenge');
+const Challenge_Exercise = require('../../models/challenge_exercise');
+const Challenge_Set = require('../../models/challenge_set');
 const Challenge_User = require('../../models/challenge_user');
 const challengeController = require('../../controllers/challenge');
-const newData = require('../data.json');
+
+const challengeData = require('../data.json');
 
 describe('ChallengeRoutes', () => {
   let req;
@@ -75,7 +78,6 @@ describe('ChallengeRoutes', () => {
       expect(Challenge_User.findAll).toBeCalledTimes(1);
     });
     it('challengeForUserAfterJoin에서 정상적으로 findAll함수가 호출 되었을 때, res는 200상태를 응답해야함', async () => {
-      console.log('statusCODE!!@#', res.statusCode);
       await challengeController.challengeForUserAfterJoin(req, res);
       expect(res.statusCode).toBe(200);
     });
@@ -113,7 +115,39 @@ describe('ChallengeRoutes', () => {
     });
   });
 
-  //   // it.todo('챌린지 등록하기');
+  describe('챌린지 등록하기', () => {
+    beforeEach(() => {
+      Challenge.create = jest.fn();
+      Challenge_Exercise.create = jest.fn();
+      Challenge_Set.create = jest.fn();
+      Challenge.create.mockReturnValue({ id: 1 });
+      Challenge_Exercise.create.mockReturnValue({ id: 1 });
+      Challenge_Set.create.mockReturnValue({ id: 1 });
+    });
+
+    it('makeChallenge는 함수이어야 함', () => {
+      expect(typeof challengeController.makeChallenge).toBe('function');
+    });
+    it('makeChallenge에서 create 함수가 호출되어야 함', async () => {
+      req.body = challengeData;
+      await challengeController.makeChallenge(req, res);
+      expect(Challenge.create).toBeCalledTimes(1);
+      expect(Challenge_Exercise.create).toBeCalledTimes(
+        challengeData.exercises.length
+      );
+      expect(Challenge_Set.create).toBeCalledTimes(2);
+    });
+    it('makeChallenge가 정상적이면 res는 200상태를 응답해야함', async () => {
+      await challengeController.makeChallenge(req, res);
+      expect(res.statusCode).toBe(200);
+    });
+    it('makeChallenge에서 비정상적으로  findOne함수가 호출 되었을 때, res는 error값을 응답해야 함', async () => {
+      req.body = null;
+      await challengeController.makeChallenge(req, res);
+      expect(res.statusCode).toBe(500);
+    });
+  });
+
   //   // it.todo('챌린지 기록하기');
   //   // it.todo('챌린지 참여하기');
   //   // it.todo('챌린지 참여취소하기');
