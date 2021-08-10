@@ -18,9 +18,13 @@ router.get('/', authenticateJWT, async (req, res) => {
   const params = req.query;
   let where;
   if (params.sorting) {
-    where = Sequelize.literal(
-      `Routine.createdAt > DATE_FORMAT(date_add(NOW(), INTERVAL - 1 ${params.sorting}), '%Y%m%d')`
-    );
+    if (params.sorting === 'bookmark') {
+      where = { isBookmarked: true };
+    } else {
+      where = Sequelize.literal(
+        `Routine.createdAt > DATE_FORMAT(date_add(NOW(), INTERVAL - 1 ${params.sorting}), '%Y%m%d')`
+      );
+    }
   } else if (params.date) {
     where = Sequelize.literal(
       `DATE_FORMAT(Routine.createdAt, '%Y%m%d') = ${params.date}`
@@ -100,7 +104,6 @@ router.get('/:id', authenticateJWT, async (req, res) => {
 });
 
 //Routine 등록
-//authMiddleware
 router.post('/', authenticateJWT, async (req, res) => {
   try {
     const { myExercise } = req.body;
@@ -154,7 +157,7 @@ router.patch('/bookmark', authenticateJWT, async (req, res) => {
       return res.json({ ok: false, message: '수정할 권한이 없습니다' });
     }
 
-    await Routine.update(
+    const result = await Routine.update(
       {
         isBookmarked,
         routineName,
@@ -163,7 +166,8 @@ router.patch('/bookmark', authenticateJWT, async (req, res) => {
         where: { id },
       }
     );
-    res.json({ ok: true });
+    console.log(result);
+    res.json({ ok: true, routineId: id });
   } catch (error) {
     console.error(error);
     res.status(500).send({ errorMessage: error });
