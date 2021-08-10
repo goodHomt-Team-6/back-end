@@ -18,8 +18,8 @@ const exerciseRouter = require('./routes/exercise');
 const routineRouter = require('./routes/routine');
 const communityRouter = require('./routes/community');
 const challengeRouter = require('./routes/challenge');
-const routine_commentRouter = require('./routes/routine_comment');
-const routine_likeRouter = require('./routes/routine_like');
+const commentRouter = require('./routes/comment');
+const likeRouter = require('./routes/like');
 const adminRouter = require('./routes/admin');
 
 dotenv.config();
@@ -99,9 +99,9 @@ app.use('/community', communityRouter);
 
 app.use('/challenge', challengeRouter);
 
-app.use('/comment', routine_commentRouter);
+app.use('/comment', commentRouter);
 
-app.use('/like', routine_likeRouter);
+app.use('/like', likeRouter);
 
 app.use('/admin', adminRouter);
 
