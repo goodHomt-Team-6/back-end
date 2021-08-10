@@ -6,6 +6,7 @@ const { authenticateJWT } = require('../middlewares/authenticateJWT');
 //커뮤니티 루틴 등록
 // authenticateJWT
 router.post('/', authenticateJWT, async (req, res) => {
+  //서비스
   const {
     routine: { routineName, myExercise },
   } = req.body;
@@ -37,6 +38,10 @@ router.post('/', authenticateJWT, async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const result = await Community.find();
+    result.forEach((routine) => {
+      routine.totalLike = routine.like.length;
+      console.log(routine);
+    });
     res.status(200).send({ message: 'success', result });
   } catch (error) {
     console.error(error);
@@ -48,6 +53,7 @@ router.get('/', async (req, res) => {
 router.get('/:routineId', async (req, res) => {
   try {
     const result = await Community.findById(req.params.routineId);
+    result.totalLike = result.like.length;
     res.status(200).send({ message: 'success', result });
   } catch (error) {
     console.error(error);

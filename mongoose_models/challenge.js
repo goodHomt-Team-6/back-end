@@ -5,21 +5,24 @@ const seoulTime = moment
   .tz(new Date(), 'Asia/Seoul')
   .format('YYYY-MM-DD HH:mm:ss');
 
-const ChallengeSchema = new mongoose.Schema({
-  challengeName: {
-    type: String,
+const ChallengeSchema = new mongoose.Schema(
+  {
+    challengeName: {
+      type: String,
+    },
+    routine: {
+      type: Array,
+    },
+    Description: {
+      type: String,
+    },
+    challengeUser: [ChallengeUserSchema],
+    createdAt: {
+      type: String,
+      default: seoulTime,
+    },
   },
-  routine: {
-    type: Array,
-  },
-  Description: {
-    type: String,
-  },
-  challengeUser: [ChallengeUserSchema],
-  createdAt: {
-    type: String,
-    default: seoulTime,
-  },
-});
+  { versionKey: false }
+);
 
 module.exports = mongoose.model('Challenge', ChallengeSchema);

@@ -4,20 +4,23 @@ const seoulTime = moment
   .tz(new Date(), 'Asia/Seoul')
   .format('YYYY-MM-DD HH:mm:ss');
 
-const Routine_LikeSchema = new mongoose.Schema({
-  userId: {
-    type: Number,
-    required: true,
-    unique: true,
+const Routine_LikeSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: Number,
+      required: true,
+      unique: true,
+    },
+    nickname: {
+      type: String,
+      required: true,
+    },
+    createdAt: {
+      type: String,
+      default: seoulTime,
+    },
   },
-  nickname: {
-    type: String,
-    required: true,
-  },
-  createdAt: {
-    type: String,
-    default: seoulTime,
-  },
-});
+  { versionKey: false }
+);
 
 module.exports = mongoose.model('Routine_Like', Routine_LikeSchema);
