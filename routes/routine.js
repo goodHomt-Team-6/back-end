@@ -6,6 +6,7 @@ const Routine = require('../models/routine');
 const Routine_Exercise = require('../models/routine_exercise');
 const Set = require('../models/set');
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
+const { set } = require('mongoose');
 
 /**
  *  @swagger
@@ -37,13 +38,26 @@ router.get('/', authenticateJWT, async (req, res) => {
       where: {
         [Op.and]: [{ userId }, where],
       },
-      attributes: ['id', 'routineName', 'createdAt'],
+      attributes: [
+        'id',
+        'routineName',
+        'isBookmarked',
+        'isCompleted',
+        'routineTime',
+        'rating',
+        'createdAt',
+      ],
       include: [
         {
           model: Routine_Exercise,
           attributes: ['id', 'exerciseName'],
           as: 'myExercise',
-          include: [{ model: Set }],
+          include: [
+            {
+              model: Set,
+              as: 'set',
+            },
+          ],
         },
       ],
       order: [['createdAt', 'DESC']],
@@ -80,6 +94,7 @@ router.get('/:id', authenticateJWT, async (req, res) => {
           include: [
             {
               model: Set,
+              as: 'set',
               attributes: [
                 'id',
                 'setCount',

@@ -26,6 +26,7 @@ module.exports = class Routine_Exercise extends Sequelize.Model {
     db.Routine_Exercise.hasMany(db.Set, {
       foreignKey: 'routineExerciseId',
       sourceKey: 'id',
+      as: 'set',
     });
     db.Routine_Exercise.belongsTo(db.Routine, {
       foreignKey: 'routineId',
