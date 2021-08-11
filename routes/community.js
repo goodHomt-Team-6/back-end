@@ -6,6 +6,18 @@ const { authenticateJWT } = require('../middlewares/authenticateJWT');
 //커뮤니티 루틴 등록
 // authenticateJWT
 router.post('/', authenticateJWT, async (req, res) => {
+  //테스트
+  // const { routineName, myExercise, userId, nickname } = req.body;
+
+  // const cr = new Community({
+  //   routineName,
+  //   myExercise,
+  //   userId,
+  //   nickname,
+  // });
+  // await cr.save();
+  // res.status(200).send({ message: 'success' });
+
   //서비스
   const {
     routine: { routineName, myExercise },
