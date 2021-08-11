@@ -11,6 +11,7 @@ exports.jwtCreate = async (profile) => {
     img:
       profile.data?.kakao_account?.profile.profile_image_url ||
       profile.kakao_account?.profile.profile_image_url,
+    communityNickname: null,
   };
 
   const snsId = profile.data?.id || profile.id;
