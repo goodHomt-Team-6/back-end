@@ -215,4 +215,23 @@ router.patch('/result', authenticateJWT, async (req, res) => {
     res.status(500).send({ errorMessage: error });
   }
 });
+
+router.delete('/:routineId', authenticateJWT, async (req, res) => {
+  const userId = req.userId;
+  const { routineId } = req.params;
+  try {
+    const routine = await Routine.findOne({ id: routineId });
+    if (userId !== routine.userId) {
+      return res.json({ ok: false, message: '권한이 없습니다' });
+    }
+
+    await Routine.destroy({
+      where: { id: routineId },
+    });
+    res.json({ ok: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ errorMessage: error });
+  }
+});
 module.exports = router;
