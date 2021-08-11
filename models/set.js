@@ -44,6 +44,7 @@ module.exports = class Set extends Sequelize.Model {
       foreignKey: 'routineExerciseId',
       targetKey: 'id',
       as: 'set',
+      onDelete: 'CASCADE',
     });
   }
 };
