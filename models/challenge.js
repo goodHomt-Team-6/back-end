@@ -18,6 +18,9 @@ module.exports = class Challenge extends Sequelize.Model {
         challengeDateTime: {
           type: Sequelize.STRING,
         },
+        communityNickname: {
+          type: Sequelize.STRING,
+        },
       },
       {
         sequelize,
@@ -40,10 +43,6 @@ module.exports = class Challenge extends Sequelize.Model {
     db.Challenge.hasMany(db.Challenge_User, {
       foreignKey: 'challengeId',
       sourceKey: 'id',
-    });
-    db.Challenge.belongsTo(db.User, {
-      foreignKey: 'userId',
-      targetKey: 'id',
     });
   }
 };

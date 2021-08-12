@@ -19,7 +19,7 @@ exports.authenticateJWT = async (req, res, next) => {
     console.log('accessToken Expired!!!');
     if (irefreshToken) {
       const info = await User.findOne({
-        attributes: ['id', 'email', 'nickname', 'img'],
+        attributes: ['id', 'email', 'nickname', 'img', 'communityNickname'],
         where: { refreshToken },
       });
       const basicInfo = {
@@ -27,6 +27,7 @@ exports.authenticateJWT = async (req, res, next) => {
         email: info.email,
         nickname: info.nickname,
         img: info.img,
+        communityNickname: info.communityNickname,
       };
       const accessToken = jwt.sign(basicInfo, process.env.JWT_SECRET, {
         expiresIn: process.env.ACCESSTOKEN_EXPIRE,

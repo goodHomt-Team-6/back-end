@@ -26,7 +26,7 @@ router.get('/user/end', authenticateJWT, challengeForUserAfterJoin);
 router.get('/:challengeId', authenticateJWT, getChallengeDetail);
 
 //챌린지 등록하기
-router.post('/', authenticateJWT, makeChallenge);
+router.post('/', makeChallenge);
 
 //챌린지 기록하기
 router.patch('/record', authenticateJWT, makeRecord);

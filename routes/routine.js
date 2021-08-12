@@ -219,8 +219,18 @@ router.patch('/result', authenticateJWT, async (req, res) => {
 router.delete('/:routineId', authenticateJWT, async (req, res) => {
   const userId = req.userId;
   const { routineId } = req.params;
+  console.log('routineParamse:::', req.params);
+  console.log('routineId:::', routineId);
   try {
-    const routine = await Routine.findOne({ id: routineId });
+    const routine = await Routine.findOne({
+      where: { id: routineId },
+    });
+    console.log('routine', routine);
+    console.log('routinUUser', routine.userId);
+    console.log('userId', userId);
+    console.log('usertype', typeof routine.userId);
+    console.log('routineId', typeof userId);
+
     if (userId !== routine.userId) {
       return res.json({ ok: false, message: '권한이 없습니다' });
     }

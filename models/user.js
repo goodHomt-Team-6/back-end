@@ -32,6 +32,9 @@ module.exports = class User extends Sequelize.Model {
         refreshToken: {
           type: Sequelize.STRING,
         },
+        communityNickname: {
+          type: Sequelize.STRING,
+        },
       },
       {
         sequelize,

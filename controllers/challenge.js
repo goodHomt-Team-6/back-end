@@ -29,6 +29,7 @@ exports.challengeForUserBeforeJoin = async (req, res) => {
           'challengeName',
           'challengeIntroduce',
           'challengeDateTime',
+          'communityNickname',
           'progressStatus',
         ],
         where: { progressStatus: 'start' },
@@ -54,6 +55,7 @@ exports.challengeForUserAfterJoin = async (req, res) => {
           'challengeName',
           'challengeIntroduce',
           'challengeDateTime',
+          'communityNickname',
           'progressStatus',
         ],
         where: { progressStatus: 'end' },
@@ -92,14 +94,20 @@ exports.getChallengeDetail = async (req, res) => {
 exports.makeChallenge = async (req, res) => {
   const userId = req.userId;
   try {
-    const { challengeName, challengeIntroduce, challengeDateTime, exercises } =
-      req.body;
+    const {
+      challengeName,
+      challengeIntroduce,
+      challengeDateTime,
+      exercises,
+      communityNickname,
+    } = req.body;
     if (exercises) {
       const challenge = await Challenge.create({
         userId,
         challengeName,
         challengeIntroduce,
         challengeDateTime,
+        communityNickname,
       });
       for (let i = 0; i < exercises.length; i++) {
         const { exerciseName, set } = exercises[i];
