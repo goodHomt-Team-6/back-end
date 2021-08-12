@@ -1,40 +1,30 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const { getNewAuth } = require('../utils/renewAuth');
 const { loginUser } = require('../utils/setLoginUser');
 
 exports.authenticateJWT = async (req, res, next) => {
   const [accessToken, refreshToken] = req.headers['authorization'].split(',');
+
   console.log('accessToken!!!', accessToken);
   console.log('refreshToken!!!', refreshToken);
+
   const iAccessToken = verifyToken(accessToken);
   const irefreshToken = verifyToken(refreshToken);
 
-  if (
-    (typeof iAccessToken === 'string' && iAccessToken.includes('invalid')) ||
-    (typeof irefreshToken === 'string' && irefreshToken.includes('invalid'))
-  ) {
-    res.status(403).json({ ok: false, message: 'wrong token' });
+  console.log('message1', iAccessToken);
+  console.log('message2', irefreshToken);
+
+  if (iAccessToken === 'jwt malformed' || irefreshToken === 'jwt malformed') {
+    res.status(403).json({ ok: false, message: 'invalid token' });
   }
+
   if (iAccessToken === 'jwt expired') {
     console.log('accessToken Expired!!!');
     if (irefreshToken) {
-      const info = await User.findOne({
-        attributes: ['id', 'email', 'nickname', 'img', 'communityNickname'],
-        where: { refreshToken },
-      });
-      const basicInfo = {
-        id: info.id,
-        email: info.email,
-        nickname: info.nickname,
-        img: info.img,
-        communityNickname: info.communityNickname,
-      };
-      const accessToken = jwt.sign(basicInfo, process.env.JWT_SECRET, {
-        expiresIn: process.env.ACCESSTOKEN_EXPIRE,
-      });
+      const [accessToken, id, nickname] = await getNewAuth(refreshToken);
       req.loginUser = loginUser(accessToken, refreshToken);
-      req.userId = info.id;
-      req.userInfo = { id: info.id, nickname: info.nickname };
+      req.userId = id;
+      req.userInfo = { id, nickname };
       next();
     } else {
       res.json({

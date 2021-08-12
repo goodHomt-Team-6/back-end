@@ -1,6 +1,5 @@
 const Challenge_Exercise = require('../models/challenge_exercise');
 const Challenge_Set = require('../models/challenge_set');
-const Challenge_User = require('../models/challenge_user');
 const { sequelize } = require('../models');
 exports.find = (where) => {
   return {
