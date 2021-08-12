@@ -11,7 +11,7 @@ exports.find = (where) => {
                     SELECT COUNT(userId)
                       FROM challenge_user AS challengeUser
                      WHERE
-                        challengeUser.challengeId = challenge.id
+                        challengeUser.challengeId = Challenge.id
                 )`),
           'userCount',
         ],
