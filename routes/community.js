@@ -5,7 +5,7 @@ const { authenticateJWT } = require('../middlewares/authenticateJWT');
 
 //커뮤니티 루틴 등록
 // authenticateJWT
-router.post('/', async (req, res) => {
+router.post('/', authenticateJWT, async (req, res) => {
   //테스트
   // const { routineName, myExercise, description, userId, communityNickname } =
   //   req.body;
