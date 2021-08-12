@@ -15,8 +15,7 @@ exports.jwtCreate = async (profile) => {
   };
 
   const snsId = profile.data?.id || profile.id;
-  console.log('snsId!!!!!!!', snsId);
-  console.log(profile.data?.kakao_account?.profile);
+
   const refreshToken = jwt.sign({}, process.env.JWT_SECRET, {
     expiresIn: process.env.REFRESHTOKEN_EXPIRE,
   });
@@ -25,7 +24,6 @@ exports.jwtCreate = async (profile) => {
     const exUser = await User.findOne({
       where: { [Op.and]: [{ snsId }, { provider: 'kakao' }] },
     });
-    // console.log('exUser!!!', exUser.id);
 
     if (exUser) {
       await User.update(
@@ -47,7 +45,6 @@ exports.jwtCreate = async (profile) => {
       });
       basicInfo.id = user.id;
     }
-    console.log('basicInfo!!!', basicInfo);
     const accessToken = jwt.sign(basicInfo, process.env.JWT_SECRET, {
       expiresIn: process.env.ACCESSTOKEN_EXPIRE,
     });
