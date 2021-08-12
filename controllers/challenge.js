@@ -7,6 +7,18 @@ const User = require('../models/user');
 const { find, getDeadLineYn } = require('../utils/challenge');
 const { sequelize } = require('../models');
 
+// [
+//   // Note the wrapping parentheses in the call below!
+//   sequelize.literal(`(
+//                     SELECT COUNT(*)
+//                     FROM reactions AS reaction
+//                     WHERE
+//                         reaction.postId = post.id
+//                         AND
+//                         reaction.type = "Laugh"
+//                 )`),
+//   'laughReactionsCount',
+// ];
 exports.allChallenge = async (req, res) => {
   try {
     const result = await Challenge.findAll(find({ progressStatus: 'start' }));
@@ -73,17 +85,8 @@ exports.challengeForUserAfterJoin = async (req, res) => {
 exports.getChallengeDetail = async (req, res) => {
   const { challengeId } = req.params;
   try {
-    const userCount = await Challenge_User.findOne({
-      where: { challengeId },
-      attributes: {
-        include: [[sequelize.fn('count', sequelize.col('challengeId')), 'cnt']],
-      },
-      group: ['challengeId'],
-    });
-
     const challenge = await Challenge.findOne(find({ id: challengeId }));
-    let cnt = !userCount ? 0 : userCount.cnt;
-    res.status(200).json({ ok: true, result: { challenge, userCount: cnt } });
+    res.status(200).json({ ok: true, result: { challenge } });
   } catch (error) {
     console.error('error!@#!@#', error);
     res.status(500).json(error);

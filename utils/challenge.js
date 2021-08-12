@@ -1,8 +1,22 @@
 const Challenge_Exercise = require('../models/challenge_exercise');
 const Challenge_Set = require('../models/challenge_set');
+const Challenge_User = require('../models/challenge_user');
 const { sequelize } = require('../models');
 exports.find = (where) => {
   return {
+    attributes: {
+      include: [
+        [
+          sequelize.literal(`(
+                    SELECT COUNT(userId)
+                      FROM challenge_user AS challengeUser
+                     WHERE
+                        challengeUser.challengeId = challenge.id
+                )`),
+          'userCount',
+        ],
+      ],
+    },
     order: [['challengeDateTime', 'DESC']],
     where,
     include: [
