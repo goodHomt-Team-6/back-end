@@ -11,14 +11,23 @@ const CommunitySchema = new mongoose.Schema(
     routineName: {
       type: String,
     },
+    description: {
+      type: String,
+    },
     myExercise: {
       type: Array,
     },
     userId: {
       type: Number,
     },
-    nickname: {
+    communityNickname: {
       type: String,
+    },
+    img: {
+      type: String,
+    },
+    importCnt: {
+      type: Number,
     },
     comment: [commentSchema],
     like: [likeSchema],
@@ -33,4 +42,5 @@ const CommunitySchema = new mongoose.Schema(
   { versionKey: false }
 );
 
+CommunitySchema.index({ '$**': 'text' });
 module.exports = mongoose.model('Community', CommunitySchema);

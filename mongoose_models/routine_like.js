@@ -9,7 +9,6 @@ const Routine_LikeSchema = new mongoose.Schema(
     userId: {
       type: Number,
       required: true,
-      unique: true,
     },
     nickname: {
       type: String,

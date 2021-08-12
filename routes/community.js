@@ -7,24 +7,12 @@ const { authenticateJWT } = require('../middlewares/authenticateJWT');
 // authenticateJWT
 router.post('/', authenticateJWT, async (req, res) => {
   //테스트
-  // const { routineName, myExercise, userId, nickname } = req.body;
-
-  // const cr = new Community({
-  //   routineName,
-  //   myExercise,
-  //   userId,
-  //   nickname,
-  // });
-  // await cr.save();
-  // res.status(200).send({ message: 'success' });
 
   //서비스
-  const {
-    routine: { routineName, myExercise },
-  } = req.body;
+  const { routineName, myExercise, description } = req.body;
   const userId = req.userInfo.id;
-  const nickname = req.userInfo.nickname;
-
+  const communityNickname = req.userInfo.communityNickname;
+  const img = req.userInfo.img;
   try {
     if (!req.loginUser.user) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
@@ -34,8 +22,10 @@ router.post('/', authenticateJWT, async (req, res) => {
       const cr = new Community({
         routineName,
         myExercise,
+        description,
         userId,
-        nickname,
+        communityNickname,
+        img,
       });
       await cr.save();
       res.status(200).send({ message: 'success' });
@@ -48,13 +38,25 @@ router.post('/', authenticateJWT, async (req, res) => {
 
 //커뮤니티 루틴 전부 가져오기
 router.get('/', async (req, res) => {
+  const exerciseName = req.query.exerciseName;
+  const likeUser = [];
   try {
-    const result = await Community.find();
-    result.forEach((routine) => {
-      routine.totalLike = routine.like.length;
-      console.log(routine);
-    });
-    res.status(200).send({ message: 'success', result });
+    if (exerciseName) {
+      console.log(typeof exerciseName);
+      const result = await Community.find({
+        'myExercise.exerciseName': { $regex: `${exerciseName}`, $options: 'i' },
+      });
+      result.forEach((routine) => {
+        routine.totalLike = routine.like.length;
+      });
+      res.status(200).send({ message: 'success', result });
+    } else {
+      const result = await Community.find().sort('-createdAt');
+      result.forEach((routine) => {
+        routine.totalLike = routine.like.length;
+      });
+      res.status(200).send({ message: 'success', result });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json(error);
