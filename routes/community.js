@@ -1,13 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const Community = require('../mongoose_models/community');
+const Routine = require('../models/routine');
+const Routine_Exercise = require('../models/routine_exercise');
+const Set = require('../models/set');
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
 
 //커뮤니티 루틴 등록
 // authenticateJWT
 router.post('/', authenticateJWT, async (req, res) => {
   //테스트
-  // const { routineName, myExercise, description, userId, communityNickname } =
+  // const { routineName, myExercise, description, userId, communityNickname, isBookmarked, routineTime } =
   //   req.body;
 
   // const cr = new Community({
@@ -16,6 +19,8 @@ router.post('/', authenticateJWT, async (req, res) => {
   //   description,
   //   userId,
   //   communityNickname,
+  //   isBookmarked,
+  //   routineTime
   // });
   // await cr.save();
   // res.status(200).send({ message: 'success' });
@@ -25,12 +30,13 @@ router.post('/', authenticateJWT, async (req, res) => {
   const userId = req.userInfo.id;
   const communityNickname = req.userInfo.communityNickname;
   const img = req.userInfo.img;
+
   try {
-    if (!req.userInfo) {
+    if (!userId) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
       return;
     }
-    if (req.userInfo) {
+    if (userId) {
       const cr = new Community({
         routineName,
         myExercise,
@@ -51,21 +57,27 @@ router.post('/', authenticateJWT, async (req, res) => {
 //커뮤니티 루틴 전부 가져오기
 router.get('/', async (req, res) => {
   const exerciseName = req.query.exerciseName;
-  const likeUser = [];
   try {
     if (exerciseName) {
-      console.log(typeof exerciseName);
       const result = await Community.find({
         'myExercise.exerciseName': { $regex: `${exerciseName}`, $options: 'i' },
       });
       result.forEach((routine) => {
         routine.totalLike = routine.like.length;
+        const likeUser = [];
+        routine.like.forEach((like) => likeUser.push(like.userId));
+        const isLike = likeUser.includes(Number(req.body?.userId));
+        routine.isLike = isLike;
       });
       res.status(200).send({ message: 'success', result });
     } else {
       const result = await Community.find().sort('-createdAt');
       result.forEach((routine) => {
         routine.totalLike = routine.like.length;
+        const likeUser = [];
+        routine.like.forEach((like) => likeUser.push(like.userId));
+        const isLike = likeUser.includes(Number(req.body?.userId));
+        routine.isLike = isLike;
       });
       res.status(200).send({ message: 'success', result });
     }
@@ -111,8 +123,45 @@ router.delete('/:routineId', authenticateJWT, async (req, res) => {
 });
 
 //커뮤니티 루틴에서 나의루틴으로 가져오기
-// router.post('/:routineId', authenticateJWT, async (req, res) => {
-//   const userId = req.userInfo.id;
-// });
+//authenticateJWT
+router.post('/:routineId', authenticateJWT, async (req, res) => {
+  const userId = req.userInfo.id;
+  const { myExercise, routineName } = req.body;
+
+  try {
+    if (myExercise) {
+      const routine = await Routine.create({
+        userId,
+        routineName,
+      });
+      for (let i = 0; i < myExercise.length; i++) {
+        const { exerciseName, set } = myExercise[i];
+        const routineExercise = await Routine_Exercise.create({
+          routineId: routine.id,
+          exerciseName,
+        });
+
+        for (let i = 0; i < set.length; i++) {
+          const inputSet = set[i];
+          await Set.create({
+            routineExerciseId: routineExercise.id,
+            weight: inputSet?.weight,
+            count: inputSet?.count,
+            time: inputSet?.time,
+            type: inputSet?.type,
+            setCount: inputSet?.setCount,
+            minutes: inputSet?.minutes,
+            seconds: inputSet?.seconds,
+            order: i + 1,
+          });
+        }
+      }
+      res.status(200).send({ ok: true });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ errorMessage: error });
+  }
+});
 
 module.exports = router;
