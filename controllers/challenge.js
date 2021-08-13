@@ -51,8 +51,8 @@ exports.challengeForUserBeforeJoin = async (req, res) => {
           'progressStatus',
         ],
         where,
+        order: [['challengeDateTime', 'ASC']],
       },
-      order: [['createdAt', 'DESC']],
     });
     res.json({ ok: true, result });
   } catch (error) {
