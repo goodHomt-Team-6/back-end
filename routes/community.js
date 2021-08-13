@@ -10,8 +10,15 @@ const { authenticateJWT } = require('../middlewares/authenticateJWT');
 // authenticateJWT
 router.post('/', authenticateJWT, async (req, res) => {
   //테스트
-  // const { routineName, myExercise, description, userId, communityNickname, isBookmarked, routineTime } =
-  //   req.body;
+  // const {
+  //   routineName,
+  //   myExercise,
+  //   description,
+  //   userId,
+  //   communityNickname,
+  //   isBookmarked,
+  //   routineTime,
+  // } = req.body;
 
   // const cr = new Community({
   //   routineName,
@@ -20,7 +27,7 @@ router.post('/', authenticateJWT, async (req, res) => {
   //   userId,
   //   communityNickname,
   //   isBookmarked,
-  //   routineTime
+  //   routineTime,
   // });
   // await cr.save();
   // res.status(200).send({ message: 'success' });
@@ -68,6 +75,9 @@ router.get('/', async (req, res) => {
         routine.like.forEach((like) => likeUser.push(like.userId));
         const isLike = likeUser.includes(Number(req.body?.userId));
         routine.isLike = isLike;
+        routine.importCnt = routine.import.length;
+        routine.import = null;
+        routine.like = null;
       });
       res.status(200).send({ message: 'success', result });
     } else {
@@ -78,6 +88,10 @@ router.get('/', async (req, res) => {
         routine.like.forEach((like) => likeUser.push(like.userId));
         const isLike = likeUser.includes(Number(req.body?.userId));
         routine.isLike = isLike;
+        routine.importCnt = routine.import.length;
+        routine.import = null;
+        routine.like = null;
+        routine.comment = null;
       });
       res.status(200).send({ message: 'success', result });
     }
@@ -92,6 +106,8 @@ router.get('/:routineId', async (req, res) => {
   try {
     const result = await Community.findById(req.params.routineId);
     result.totalLike = result.like.length;
+    result.import = null;
+    result.like = null;
     res.status(200).send({ message: 'success', result });
   } catch (error) {
     console.error(error);
@@ -156,6 +172,9 @@ router.post('/:routineId', authenticateJWT, async (req, res) => {
           });
         }
       }
+      await Community.findByIdAndUpdate(req.params.routineId, {
+        $push: { import: { userId } },
+      });
       res.status(200).send({ ok: true });
     }
   } catch (error) {
