@@ -4,24 +4,13 @@ const Challenge_User = require('../models/challenge_user');
 const Challenge_Exercise = require('../models/challenge_exercise');
 const Challenge_Set = require('../models/challenge_set');
 const User = require('../models/user');
-const { find, getDeadLineYn } = require('../utils/challenge');
-const { sequelize } = require('../models');
+const { allSearch, find, getDeadLineYn } = require('../utils/challenge');
 
-// [
-//   // Note the wrapping parentheses in the call below!
-//   sequelize.literal(`(
-//                     SELECT COUNT(*)
-//                     FROM reactions AS reaction
-//                     WHERE
-//                         reaction.postId = post.id
-//                         AND
-//                         reaction.type = "Laugh"
-//                 )`),
-//   'laughReactionsCount',
-// ];
+//전체 챌린지
 exports.allChallenge = async (req, res) => {
   try {
     const result = await Challenge.findAll(find({ progressStatus: 'start' }));
+    // const result = await allSearch();
     res.status(200).json({ ok: true, result });
   } catch (error) {
     console.error(error);
@@ -103,6 +92,8 @@ exports.makeChallenge = async (req, res) => {
       challengeDateTime,
       exercises,
       communityNickname,
+      runningTime,
+      difficulty,
     } = req.body;
     if (exercises) {
       const challenge = await Challenge.create({
@@ -111,6 +102,8 @@ exports.makeChallenge = async (req, res) => {
         challengeIntroduce,
         challengeDateTime,
         communityNickname,
+        runningTime,
+        difficulty,
       });
       for (let i = 0; i < exercises.length; i++) {
         const { exerciseName, set } = exercises[i];

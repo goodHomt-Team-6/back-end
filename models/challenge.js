@@ -21,6 +21,12 @@ module.exports = class Challenge extends Sequelize.Model {
         communityNickname: {
           type: Sequelize.STRING,
         },
+        runningTime: {
+          type: Sequelize.INTEGER,
+        },
+        difficulty: {
+          type: Sequelize.STRING,
+        },
       },
       {
         sequelize,
