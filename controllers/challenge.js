@@ -5,11 +5,19 @@ const Challenge_Exercise = require('../models/challenge_exercise');
 const Challenge_Set = require('../models/challenge_set');
 const User = require('../models/user');
 const { allSearch, find, getDeadLineYn } = require('../utils/challenge');
-
+const { sequelize } = require('../models');
 //전체 챌린지
 exports.allChallenge = async (req, res) => {
   try {
-    const result = await Challenge.findAll(find({ progressStatus: 'start' }));
+    const result = await Challenge.findAll(
+      find({
+        challengeDateTime: {
+          [Op.gt]: sequelize.literal(
+            `(SELECT date_format(DATE_ADD(NOW(), INTERVAL Challenge.runningTime MINUTE), '%Y%m%d%H%i'))`
+          ),
+        },
+      })
+    );
     // const result = await allSearch();
     res.status(200).json({ ok: true, result });
   } catch (error) {
