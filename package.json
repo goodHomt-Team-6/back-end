@@ -12,6 +12,7 @@
     "test:cov": "jest --coverage"
   },
   "dependencies": {
+    "app-root-path": "^3.0.0",
     "axios": "^0.21.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",

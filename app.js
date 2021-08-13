@@ -8,6 +8,8 @@ const path = require('path');
 const cors = require('cors');
 const passport = require('passport');
 const logger = require('./logger');
+const helmet = require('helmet');
+const hpp = require('hpp');
 
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
@@ -54,6 +56,11 @@ nunjucks.configure('views', {
 // middleware
 if (process.env.NODE_ENV === 'production') {
   app.use(morgan('combined'));
+  // HTTP 헤더를 적절히 설정하여 웹취약성으로 부터 앱을 보호.
+  app.use(helmet({ contentSecurityPolicy: false }));
+
+  //HTTP요청에 동일한 이름을 가진 파라미터가 있을 경우, 의도치 않은 동작을 하도록 외부공격 차단.
+  app.use(hpp());
 } else {
   app.use(morgan('dev'));
 }
