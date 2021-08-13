@@ -7,6 +7,7 @@ const nunjucks = require('nunjucks');
 const path = require('path');
 const cors = require('cors');
 const passport = require('passport');
+const logger = require('./logger');
 
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
@@ -51,7 +52,11 @@ nunjucks.configure('views', {
 });
 
 // middleware
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'production') {
+  app.use(morgan('combined'));
+} else {
+  app.use(morgan('dev'));
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }), router);
@@ -114,6 +119,7 @@ app.use((req, res, next) => {
 
 app.use((error, req, res, next) => {
   res.status(error.status || 500);
+  logger.error(error.message);
   res.json({ ok: false, errorMesaage: error.message });
 });
 
