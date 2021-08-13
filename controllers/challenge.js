@@ -156,8 +156,9 @@ exports.makeChallenge = async (req, res) => {
 
 //챌린지 기록하기
 exports.makeRecord = async (req, res) => {
-  const userId = req.userId;
-
+  const userId = 1;
+  const { id, challengeTime, rating } = req.body;
+  console.log(id, challengeTime, rating);
   try {
     const user = await User.findByPk(userId);
     await User.update(
@@ -166,6 +167,17 @@ exports.makeRecord = async (req, res) => {
       },
       {
         where: { id: userId },
+      }
+    );
+    await Challenge_User.update(
+      {
+        challengeId: id,
+        challengeTime,
+        rating,
+        isCompleted: true,
+      },
+      {
+        where: { [Op.and]: [{ userId }, { challengeId: id }] },
       }
     );
     res.json({ ok: true });

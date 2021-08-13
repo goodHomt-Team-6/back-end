@@ -23,9 +23,15 @@ module.exports = class Challenge_User extends Sequelize.Model {
         //   //   key: 'id',
         //   // },
         // },
-        successYn: {
+        isCompleted: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
+        },
+        rating: {
+          type: Sequelize.STRING,
+        },
+        challengeTime: {
+          type: Sequelize.INTEGER,
         },
       },
       {
