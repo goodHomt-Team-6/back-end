@@ -29,10 +29,19 @@ const CommunitySchema = new mongoose.Schema(
     importCnt: {
       type: Number,
     },
+    isBookmarked: {
+      type: Boolean,
+    },
+    routineTime: {
+      type: Number,
+    },
     comment: [commentSchema],
     like: [likeSchema],
     totalLike: {
       type: Number,
+    },
+    isLike: {
+      type: Boolean,
     },
     createdAt: {
       type: String,
@@ -42,5 +51,5 @@ const CommunitySchema = new mongoose.Schema(
   { versionKey: false }
 );
 
-CommunitySchema.index({ '$**': 'text' });
+CommunitySchema.index({ 'myExercise.exerciseName': 'text' });
 module.exports = mongoose.model('Community', CommunitySchema);
