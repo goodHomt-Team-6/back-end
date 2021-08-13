@@ -8,12 +8,19 @@ const { allSearch, find, getDeadLineYn } = require('../utils/challenge');
 const { sequelize } = require('../models');
 //전체 챌린지
 exports.allChallenge = async (req, res) => {
+  const where = {
+    challengeDateTime: {
+      [Op.gt]: sequelize.literal(
+        `(SELECT date_format(DATE_ADD(NOW(), INTERVAL Challenge.runningTime MINUTE), '%Y%m%d%H%i'))`
+      ),
+    },
+  };
   try {
     const result = await Challenge.findAll(
       find({
         challengeDateTime: {
           [Op.gt]: sequelize.literal(
-            `(SELECT date_format(DATE_ADD(NOW(), INTERVAL Challenge.runningTime MINUTE), '%Y%m%d%H%i'))`
+            `(SELECT date_format(NOW(), '%Y%m%d%H%i'))`
           ),
         },
       })
