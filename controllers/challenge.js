@@ -27,9 +27,10 @@ exports.allChallenge = async (req, res) => {
 };
 
 exports.challengeForUserBeforeJoin = async (req, res) => {
-  const userId = req.userId;
+  const userId = 1;
 
   //메인에서 챌린지가져올 떄 쓸 조건 => 메인 api 작성후 적용
+  //운동시작시간 > 현재시간 - 런닝시간
   const where = {
     challengeDateTime: {
       [Op.gt]: sequelize.literal(
@@ -37,6 +38,7 @@ exports.challengeForUserBeforeJoin = async (req, res) => {
       ),
     },
   };
+  console.log('여기!!@#');
   try {
     const result = await Challenge_User.findAll({
       where: { userId },
@@ -51,8 +53,8 @@ exports.challengeForUserBeforeJoin = async (req, res) => {
           'progressStatus',
         ],
         where,
-        order: [['challengeDateTime', 'ASC']],
       },
+      order: [[Challenge, 'challengeDateTime', 'ASC']],
     });
     res.json({ ok: true, result });
   } catch (error) {
