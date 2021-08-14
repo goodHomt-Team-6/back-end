@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const commentSchema = require('./routine_comment').schema;
 const likeSchema = require('./routine_like').schema;
+const importSchema = require('./import').schema;
 const moment = require('moment-timezone');
 const seoulTime = moment
   .tz(new Date(), 'Asia/Seoul')
@@ -26,22 +27,23 @@ const CommunitySchema = new mongoose.Schema(
     img: {
       type: String,
     },
-    importCnt: {
-      type: Number,
-    },
     isBookmarked: {
       type: Boolean,
     },
     routineTime: {
       type: Number,
     },
+    isLike: {
+      type: Boolean,
+    },
+    importCnt: {
+      type: Number,
+    },
+    import: [importSchema],
     comment: [commentSchema],
     like: [likeSchema],
     totalLike: {
       type: Number,
-    },
-    isLike: {
-      type: Boolean,
     },
     createdAt: {
       type: String,
