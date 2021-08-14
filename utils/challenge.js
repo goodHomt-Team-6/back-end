@@ -42,7 +42,7 @@ exports.find = (where) => {
         ],
       ],
     },
-    order: [['challengeDateTime', 'DESC']],
+    order: [['challengeDateTime', 'ASC']],
     where,
     include: [
       {
