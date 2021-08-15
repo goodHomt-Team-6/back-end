@@ -25,6 +25,8 @@ const commentRouter = require('./routes/comment');
 const likeRouter = require('./routes/like');
 const adminRouter = require('./routes/admin');
 
+const { schedule } = require('./utils/schedule');
+
 dotenv.config();
 
 const app = express();
@@ -52,6 +54,9 @@ nunjucks.configure('views', {
   express: app,
   watch: true,
 });
+
+//schedule 설정
+schedule();
 
 // middleware
 if (process.env.NODE_ENV === 'production') {

@@ -13,10 +13,10 @@ module.exports = class Challenge extends Sequelize.Model {
         },
         progressStatus: {
           type: Sequelize.STRING,
-          defaultValue: 'start',
+          defaultValue: 'before',
         },
         challengeDateTime: {
-          type: Sequelize.STRING,
+          type: Sequelize.INTEGER,
         },
         communityNickname: {
           type: Sequelize.STRING,
@@ -25,6 +25,12 @@ module.exports = class Challenge extends Sequelize.Model {
           type: Sequelize.INTEGER,
         },
         difficulty: {
+          type: Sequelize.STRING,
+        },
+        remainTime: {
+          type: Sequelize.STRING,
+        },
+        endDateTime: {
           type: Sequelize.STRING,
         },
       },

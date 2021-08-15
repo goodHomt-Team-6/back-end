@@ -1,10 +1,13 @@
 const { Op } = require('sequelize');
+const CronJob = require('cron').CronJob;
+
 const Challenge = require('../models/challenge');
 const Challenge_User = require('../models/challenge_user');
 const Challenge_Exercise = require('../models/challenge_exercise');
 const Challenge_Set = require('../models/challenge_set');
 const User = require('../models/user');
-const { allSearch, find, getDeadLineYn } = require('../utils/challenge');
+const { find, getDeadLineYn } = require('../utils/challenge');
+const { startSchedule } = require('../utils/schedule');
 const { sequelize } = require('../models');
 //전체 챌린지
 exports.allChallenge = async (req, res) => {
@@ -114,8 +117,10 @@ exports.makeChallenge = async (req, res) => {
       runningTime,
       difficulty,
     } = req.body;
+
+    let challenge;
     if (exercises) {
-      const challenge = await Challenge.create({
+      challenge = await Challenge.create({
         userId,
         challengeName,
         challengeIntroduce,
@@ -123,6 +128,10 @@ exports.makeChallenge = async (req, res) => {
         communityNickname,
         runningTime,
         difficulty,
+        endDateTime: sequelize.literal(
+          // `(SELECT TIMESTAMPDIFF(MINUTE, now(),  STR_TO_DATE('202108150200','%Y%m%d %H%i%s'))+1)`
+          `(SELECT DATE_FORMAT(DATE_ADD(STR_TO_DATE(${challengeDateTime},'%Y%m%d %H%i%s'), INTERVAL ${runningTime} MINUTE), '%Y%m%d%H%i') )`
+        ),
       });
       for (let i = 0; i < exercises.length; i++) {
         const { exerciseName, set } = exercises[i];
@@ -147,6 +156,12 @@ exports.makeChallenge = async (req, res) => {
         }
       }
     }
+
+    const scheduleChallenge = await Challenge.findByPk(challenge.id);
+    const endDateTime = scheduleChallenge.endDateTime;
+    console.log('endTime123', endDateTime);
+
+    startSchedule(challengeDateTime, endDateTime, challenge.id);
     res.status(200).send({ ok: true });
   } catch (error) {
     console.error(error);
