@@ -36,17 +36,11 @@ router.post('/', authenticateJWT, async (req, res) => {
   // res.status(200).send({ message: 'success' });
 
   try {
-    const {
-      routineName,
-      myExercise,
-      description,
-      routineTime,
-      isBookmarked,
-      communityNickname,
-    } = req.body;
+    const { routineName, myExercise, description, routineTime, isBookmarked } =
+      req.body;
     const userId = req.userInfo.id;
-    // const communityNickname = req.userInfo?.communityNickname;
     const img = req.userInfo?.img;
+    const communityNickname = req.body || req.userInfo?.nickname;
 
     if (!userId) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
