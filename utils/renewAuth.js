@@ -17,6 +17,8 @@ exports.getNewAuth = async function (refreshToken) {
     img: info.img,
     communityNickname: info.communityNickname,
   };
+
+  console.log('basicInfo!!!!@!@!@', basicInfo);
   const accessToken = jwt.sign(basicInfo, process.env.JWT_SECRET, {
     expiresIn: process.env.ACCESSTOKEN_EXPIRE,
   });

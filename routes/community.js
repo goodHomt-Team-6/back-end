@@ -4,6 +4,7 @@ const Community = require('../mongoose_models/community');
 const Routine = require('../models/routine');
 const Routine_Exercise = require('../models/routine_exercise');
 const Set = require('../models/set');
+const User = require('../models/user');
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
 
 //커뮤니티 루틴 등록
@@ -33,9 +34,9 @@ router.post('/', authenticateJWT, async (req, res) => {
   // res.status(200).send({ message: 'success' });
 
   //서비스
-  const { routineName, myExercise, description } = req.body;
+  const { routineName, myExercise, description, communityNickname } = req.body;
   const userId = req.userInfo.id;
-  const communityNickname = req.userInfo.communityNickname;
+  // const communityNickname = req.userInfo.communityNickname;
   const img = req.userInfo.img;
 
   try {
@@ -53,6 +54,14 @@ router.post('/', authenticateJWT, async (req, res) => {
         img,
       });
       await cr.save();
+
+      await User.update(
+        { communityNickname },
+        {
+          where: { id: userId },
+        }
+      );
+
       res.status(200).send({ message: 'success' });
     }
   } catch (error) {
