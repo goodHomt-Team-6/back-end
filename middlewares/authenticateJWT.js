@@ -26,7 +26,7 @@ exports.authenticateJWT = async (req, res, next) => {
         req.loginUser = loginUser(accessToken, refreshToken);
         req.userId = id;
         req.userInfo = { id, nickname };
-        next();
+        next();/
       } else {
         res.json({
           ok: false,

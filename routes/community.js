@@ -16,10 +16,12 @@ router.post('/', authenticateJWT, async (req, res) => {
   //   myExercise,
   //   description,
   //   userId,
-  //   communityNickname,
   //   isBookmarked,
   //   routineTime,
   // } = req.body;
+
+  // const communityNickname =
+  //   req.userInfo?.communityNickname || req.body.communityNickname;
 
   // const cr = new Community({
   //   routineName,
@@ -33,13 +35,19 @@ router.post('/', authenticateJWT, async (req, res) => {
   // await cr.save();
   // res.status(200).send({ message: 'success' });
 
-  //서비스
-  const { routineName, myExercise, description, communityNickname } = req.body;
-  const userId = req.userInfo.id;
-  // const communityNickname = req.userInfo.communityNickname;
-  const img = req.userInfo.img;
-
   try {
+    const {
+      routineName,
+      myExercise,
+      description,
+      routineTime,
+      isBookmarked,
+      communityNickname,
+    } = req.body;
+    const userId = req.userInfo.id;
+    // const communityNickname = req.userInfo?.communityNickname;
+    const img = req.userInfo?.img;
+
     if (!userId) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
       return;
@@ -47,10 +55,12 @@ router.post('/', authenticateJWT, async (req, res) => {
     if (userId) {
       const cr = new Community({
         routineName,
+        routineTime,
         myExercise,
         description,
         userId,
         communityNickname,
+        isBookmarked,
         img,
       });
       await cr.save();
@@ -72,8 +82,9 @@ router.post('/', authenticateJWT, async (req, res) => {
 
 //커뮤니티 루틴 전부 가져오기
 router.get('/', async (req, res) => {
-  const exerciseName = req.query.exerciseName;
   try {
+    const exerciseName = req.query.exerciseName;
+
     if (exerciseName) {
       const result = await Community.find({
         'myExercise.exerciseName': { $regex: `${exerciseName}`, $options: 'i' },
@@ -92,12 +103,12 @@ router.get('/', async (req, res) => {
     } else {
       const result = await Community.find().sort('-createdAt');
       result.forEach((routine) => {
-        routine.totalLike = routine.like.length;
+        routine.totalLike = routine.like?.length;
         const likeUser = [];
         routine.like.forEach((like) => likeUser.push(like.userId));
         const isLike = likeUser.includes(Number(req.body?.userId));
         routine.isLike = isLike;
-        routine.importCnt = routine.import.length;
+        routine.importCnt = routine.import?.length;
         routine.import = null;
         routine.like = null;
         routine.comment = null;
@@ -126,9 +137,9 @@ router.get('/:routineId', async (req, res) => {
 
 //커뮤니티 루틴 삭제하기
 router.delete('/:routineId', authenticateJWT, async (req, res) => {
-  const userId = req.userInfo.id;
-  const routine = await Community.findById(req.params.routineId);
   try {
+    const userId = req.userInfo.id;
+    const routine = await Community.findById(req.params.routineId);
     if (!req.loginUser.user) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
       return;
@@ -150,10 +161,10 @@ router.delete('/:routineId', authenticateJWT, async (req, res) => {
 //커뮤니티 루틴에서 나의루틴으로 가져오기
 //authenticateJWT
 router.post('/:routineId', authenticateJWT, async (req, res) => {
-  const userId = req.userInfo.id;
-  const { myExercise, routineName } = req.body;
-
   try {
+    const userId = req.userInfo.id;
+    const { myExercise, routineName } = req.body;
+
     if (myExercise) {
       const routine = await Routine.create({
         userId,
