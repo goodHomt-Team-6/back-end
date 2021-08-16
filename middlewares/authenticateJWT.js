@@ -22,10 +22,10 @@ exports.authenticateJWT = async (req, res, next) => {
     if (iAccessToken === 'jwt expired') {
       console.log('accessToken Expired!!!');
       if (irefreshToken) {
-        const [accessToken, id, nickname] = await getNewAuth(refreshToken);
+        const [accessToken, id, nickname, img, communityNickname,] = await getNewAuth(refreshToken);
         req.loginUser = loginUser(accessToken, refreshToken);
         req.userId = id;
-        req.userInfo = { id, nickname };
+        req.userInfo = { id, nickname, img,  communityNickname};
         next();/
       } else {
         res.json({
@@ -37,7 +37,7 @@ exports.authenticateJWT = async (req, res, next) => {
     } else {
       req.loginUser = loginUser(accessToken, refreshToken);
       req.userId = iAccessToken.id;
-      req.userInfo = { id: iAccessToken.id, nickname: iAccessToken.nickname };
+      req.userInfo = { id: iAccessToken.id, nickname: iAccessToken.nickname, img: iAccessToken.img };
       next();
     }
   } catch (error) {

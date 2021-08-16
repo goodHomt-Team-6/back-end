@@ -23,5 +23,11 @@ exports.getNewAuth = async function (refreshToken) {
     expiresIn: process.env.ACCESSTOKEN_EXPIRE,
   });
   console.log('되나');
-  return [accessToken, info.id, info.nickname];
+  return [
+    accessToken,
+    info.id,
+    info.nickname,
+    info.img,
+    info.communityNickname,
+  ];
 };
