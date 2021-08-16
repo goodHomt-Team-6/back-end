@@ -4,7 +4,7 @@ const likeSchema = require('./routine_like').schema;
 const importSchema = require('./import').schema;
 const moment = require('moment-timezone');
 const seoulTime = moment
-  .tz(new Date(), 'Asia/Seoul')
+  .tz(Date.now(), 'Asia/Seoul')
   .format('YYYY-MM-DD HH:mm:ss');
 
 const CommunitySchema = new mongoose.Schema(
