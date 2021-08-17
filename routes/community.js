@@ -136,7 +136,7 @@ router.get('/:routineId', async (req, res) => {
 //authenticateJWT
 router.delete('/:routineId', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.body.userId;
+    const userId = req.userInfo.id;
     const routine = await Community.findById(req.params.routineId);
 
     if (!req.userInfo.id) {
