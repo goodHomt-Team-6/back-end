@@ -171,9 +171,9 @@ exports.makeChallenge = async (req, res) => {
 
 //챌린지 기록하기
 exports.makeRecord = async (req, res) => {
-  const userId = 1;
+  const userId = req.userId;
   const { id, challengeTime, rating } = req.body;
-  console.log(id, challengeTime, rating);
+  console.log('id!!!!!!', id, challengeTime, rating);
   try {
     const user = await User.findByPk(userId);
     await User.update(
