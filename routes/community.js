@@ -35,12 +35,14 @@ router.post('/', authenticateJWT, async (req, res) => {
   // await cr.save();
   // res.status(200).send({ message: 'success' });
 
+  //서비스
   try {
     const { routineName, myExercise, description, routineTime, isBookmarked } =
       req.body;
     const userId = req.userInfo.id;
     const img = req.userInfo?.img;
-    const communityNickname = req.body || req.userInfo?.nickname;
+    const communityNickname =
+      req.body?.communityNickname || req.userInfo?.communityNickname;
 
     if (!userId) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
@@ -78,6 +80,7 @@ router.post('/', authenticateJWT, async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const exerciseName = req.query.exerciseName;
+    const userId = req.query.userId;
 
     if (exerciseName) {
       const result = await Community.find({
@@ -87,7 +90,7 @@ router.get('/', async (req, res) => {
         routine.totalLike = routine.like.length;
         const likeUser = [];
         routine.like.forEach((like) => likeUser.push(like.userId));
-        const isLike = likeUser.includes(Number(req.body?.userId));
+        const isLike = likeUser.includes(Number(userId));
         routine.isLike = isLike;
         routine.importCnt = routine.import.length;
         routine.import = null;
@@ -100,7 +103,7 @@ router.get('/', async (req, res) => {
         routine.totalLike = routine.like?.length;
         const likeUser = [];
         routine.like.forEach((like) => likeUser.push(like.userId));
-        const isLike = likeUser.includes(Number(req.body?.userId));
+        const isLike = likeUser.includes(Number(userId));
         routine.isLike = isLike;
         routine.importCnt = routine.import?.length;
         routine.import = null;
@@ -130,19 +133,20 @@ router.get('/:routineId', async (req, res) => {
 });
 
 //커뮤니티 루틴 삭제하기
-router.delete('/:routineId', authenticateJWT, async (req, res) => {
+router.delete('/:routineId', async (req, res) => {
   try {
-    const userId = req.userInfo.id;
+    const userId = req.body.userId;
     const routine = await Community.findById(req.params.routineId);
-    if (!req.loginUser.user) {
+
+    if (!req.userInfo.id) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
       return;
     }
-    if (userId !== routine.userId) {
+    if (Number(userId) !== routine.userId) {
       res.status(500).json({ errorMessage: '사용자가 일치하지 않습니다.' });
       return;
     }
-    if (userId === routine.userId) {
+    if (Number(userId) === routine.userId) {
       await Community.findByIdAndDelete(req.params.id);
       res.status(200).send({ message: 'success' });
     }
