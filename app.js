@@ -6,13 +6,12 @@ const dotenv = require('dotenv');
 const nunjucks = require('nunjucks');
 const path = require('path');
 const cors = require('cors');
-const passport = require('passport');
+
 const logger = require('./logger');
 const helmet = require('helmet');
 const hpp = require('hpp');
 
 const { sequelize } = require('./models');
-const passportConfig = require('./passport');
 const { swaggerUi, specs } = require('./swagger/swagger');
 
 const tokenRouter = require('./routes/tokens');
@@ -23,14 +22,12 @@ const communityRouter = require('./routes/community');
 const challengeRouter = require('./routes/challenge');
 const commentRouter = require('./routes/comment');
 const likeRouter = require('./routes/like');
-const adminRouter = require('./routes/admin');
 
 const { schedule } = require('./utils/schedule');
 
 dotenv.config();
 
 const app = express();
-passportConfig();
 const router = express.Router();
 
 app.set('port', process.env.PORT || 8005);
@@ -46,8 +43,8 @@ sequelize
   });
 
 //몽구스연결
-const connect = require('./mongoose_models/index.js');
-connect();
+// const connect = require('./mongoose_models/index.js');
+// connect();
 
 //넌적스 연결
 nunjucks.configure('views', {
@@ -91,9 +88,6 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 // }
 // app.use(session(sessionOption));
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use(cors({ origin: '*', credentials: true }));
 
 //라우터 연결
@@ -112,15 +106,13 @@ app.use('/exercises', exerciseRouter);
 
 app.use('/routines', routineRouter);
 
-app.use('/community', communityRouter);
+// app.use('/community', communityRouter);
 
 app.use('/challenges', challengeRouter);
 
-app.use('/comment', commentRouter);
+// app.use('/comment', commentRouter);
 
-app.use('/like', likeRouter);
-
-app.use('/admin', adminRouter);
+// app.use('/like', likeRouter);
 
 //error router
 app.use((req, res, next) => {
