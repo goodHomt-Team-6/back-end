@@ -25,7 +25,11 @@ exports.jwtCreate = async (profile) => {
       where: { [Op.and]: [{ snsId }, { provider: 'kakao' }] },
     });
 
+    console.log('exUserLogin!!!', exUser);
     if (exUser) {
+      basicInfo.communityNickname = exUser.communityNickname
+        ? exUser.communityNickname
+        : null;
       await User.update(
         {
           ...basicInfo,
