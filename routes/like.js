@@ -6,8 +6,9 @@ const { authenticateJWT } = require('../middlewares/authenticateJWT');
 //Like등록 || 삭제
 // authenticateJWT
 router.put('/:routineId', authenticateJWT, async (req, res) => {
+  //서비스
   const userId = req.userInfo.id;
-  const nickname = req.userInfo.nickname;
+  const nickname = req.userInfo.communityNickname;
   const routine = await Community.findById(req.params.routineId);
 
   const likeUser = [];
@@ -15,7 +16,7 @@ router.put('/:routineId', authenticateJWT, async (req, res) => {
   likeUser.includes(Number(userId));
 
   try {
-    if (!req.userInfo) {
+    if (!req.userInfo.id) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
       return;
     }

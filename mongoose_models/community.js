@@ -2,10 +2,16 @@ const mongoose = require('mongoose');
 const commentSchema = require('./routine_comment').schema;
 const likeSchema = require('./routine_like').schema;
 const importSchema = require('./import').schema;
-const moment = require('moment-timezone');
-const seoulTime = moment
-  .tz(Date.now(), 'Asia/Seoul')
-  .format('YYYY-MM-DD HH:mm:ss');
+const date = new Date();
+const year = date.getFullYear();
+const month = date.getMonth() + 1;
+const dates = date.getDate();
+const hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+const minutes =
+  date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+const seconds =
+  date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+const createdAt = `${year}년 ${month}월 ${dates}일 ${hours}:${minutes}:${seconds}`;
 
 const CommunitySchema = new mongoose.Schema(
   {
@@ -47,7 +53,7 @@ const CommunitySchema = new mongoose.Schema(
     },
     createdAt: {
       type: String,
-      default: seoulTime,
+      default: createdAt,
     },
   },
   { versionKey: false }
