@@ -106,7 +106,7 @@ app.use('/exercises', exerciseRouter);
 
 app.use('/routines', routineRouter);
 
-// app.use('/community', communityRouter);
+app.use('/community', communityRouter);
 
 app.use('/challenges', challengeRouter);
 
