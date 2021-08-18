@@ -42,6 +42,7 @@ exports.authenticateJWT = async (req, res, next) => {
         id: iAccessToken.id,
         nickname: iAccessToken.nickname,
         img: iAccessToken.img,
+        communityNickname: iAccessToken.communityNickname,
       };
       next();
     }

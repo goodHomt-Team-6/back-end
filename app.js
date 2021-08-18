@@ -42,10 +42,6 @@ sequelize
     console.error(error);
   });
 
-//몽구스연결
-// const connect = require('./mongoose_models/index.js');
-// connect();
-
 //넌적스 연결
 nunjucks.configure('views', {
   express: app,

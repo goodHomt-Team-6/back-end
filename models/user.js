@@ -56,6 +56,11 @@ module.exports = class User extends Sequelize.Model {
       foreignKey: 'userId',
       sourceKey: 'id',
     });
+
+    db.User.hasMany(db.Community, {
+      foreignKey: 'userId',
+      sourceKey: 'id',
+    });
     db.User.belongsToMany(db.Community, { through: 'like_user' });
   }
 };
