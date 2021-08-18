@@ -6,7 +6,6 @@ const Routine = require('../models/routine');
 const Routine_Exercise = require('../models/routine_exercise');
 const Set = require('../models/set');
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
-const { set } = require('mongoose');
 
 /**
  *  @swagger

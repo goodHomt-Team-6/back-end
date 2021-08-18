@@ -47,6 +47,12 @@ module.exports = class Community extends Sequelize.Model {
     db.Community.hasMany(db.Community_Exercise, {
       foreignKey: 'communityId',
       sourceKey: 'id',
+      as: 'myExercise',
+    });
+
+    db.Community.hasMany(db.Like_User, {
+      foreignKey: 'communityId',
+      sourceKey: 'id',
     });
     db.Community.belongsToMany(db.User, { through: 'like_user' });
   }

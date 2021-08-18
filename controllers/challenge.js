@@ -31,20 +31,29 @@ exports.allChallenge = async (req, res) => {
 
 exports.challengeForUserBeforeJoin = async (req, res) => {
   const userId = req.userId;
+  const query = req.query;
 
   //메인에서 챌린지가져올 떄 쓸 조건 => 메인 api 작성후 적용
   //운동시작시간 > 현재시간 - 런닝시간
-  const where = {
-    challengeDateTime: {
-      [Op.gt]: sequelize.literal(
-        `(SELECT date_format(DATE_SUB(NOW(), INTERVAL Challenge.runningTime MINUTE), '%Y%m%d%H%i'))`
-      ),
-    },
-  };
-  console.log('여기!!@#');
+  let where;
+  let isCompleted;
+  if (query.type === 'all') {
+    isCompleted = true;
+  } else {
+    isCompleted = false;
+    where = {
+      challengeDateTime: {
+        [Op.gt]: sequelize.literal(
+          `(SELECT date_format(DATE_SUB(NOW(), INTERVAL Challenge.runningTime MINUTE), '%Y%m%d%H%i'))`
+        ),
+      },
+    };
+  }
   try {
     const result = await Challenge_User.findAll({
-      where: { userId },
+      where: {
+        [Op.and]: { userId, isCompleted },
+      },
       include: {
         model: Challenge,
         as: 'Challenge',

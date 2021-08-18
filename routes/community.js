@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const Routine = require('../models/routine');
-const Routine_Exercise = require('../models/routine_exercise');
-const Set = require('../models/set');
+const Sequelize = require('sequelize');
+const { sequelize } = require('../models');
 const User = require('../models/user');
 const Community = require('../models/community');
 const Community_Exercise = require('../models/community_exercise');
 const Community_Set = require('../models/community_set');
+const Like_User = require('../models/like_user');
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
 
 //커뮤니티 루틴 등록
@@ -69,47 +69,94 @@ router.post('/', authenticateJWT, async (req, res) => {
   }
 });
 
-//커뮤니티 루틴 전부 가져오기
-// router.get('/', async (req, res) => {
-//   try {
-//     const exerciseName = req.query.exerciseName;
-//     const userId = req.query.userId;
+// 커뮤니티 루틴 전부 가져오기
+router.get('/', async (req, res) => {
+  try {
+    const { userId } = req.query;
 
-//     if (exerciseName) {
-//       const result = await Community.find({
-//         'myExercise.exerciseName': { $regex: `${exerciseName}`, $options: 'i' },
-//       });
-//       result.forEach((routine) => {
-//         routine.totalLike = routine.like.length;
-//         const likeUser = [];
-//         routine.like.forEach((like) => likeUser.push(like.userId));
-//         const isLike = likeUser.includes(Number(userId));
-//         routine.isLike = isLike;
-//         routine.importCnt = routine.import.length;
-//         routine.import = null;
-//         routine.like = null;
-//       });
-//       res.status(200).send({ message: 'success', result });
-//     } else {
-//       const result = await Community.find().sort('-createdAt');
-//       result.forEach((routine) => {
-//         routine.totalLike = routine.like?.length;
-//         const likeUser = [];
-//         routine.like.forEach((like) => likeUser.push(like.userId));
-//         const isLike = likeUser.includes(Number(userId));
-//         routine.isLike = isLike;
-//         routine.importCnt = routine.import?.length;
-//         routine.import = null;
-//         routine.like = null;
-//         routine.comment = null;
-//       });
-//       res.status(200).send({ message: 'success', result });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json(error);
-//   }
-// });
+    // let where;
+    // if (exerciseName) {
+    //   where = Sequelize.literal(
+    //     `Community_Exercise.exerciseName LIKE '%${exerciseName}%'`
+    //   );
+    // } else {
+    //   where = {};
+    // };
+    const result = await Community.findAll({
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(
+                    SELECT COUNT(userId)
+                      FROM like_user AS like_user
+                     WHERE
+                        like_user.communityId = community.id
+                )`),
+            'totalCount',
+          ],
+          [
+            sequelize.literal(`(
+                    SELECT COUNT(userId)
+                      FROM like_user AS like_user
+                     WHERE
+                        like_user.communityId = community.id
+                )`),
+            'isLiked',
+          ],
+        ],
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['img'],
+        },
+        {
+          model: Community_Exercise,
+          as: 'myExercise',
+          include: [
+            {
+              model: Community_Set,
+            },
+          ],
+        },
+      ],
+    });
+    // for (let i = 0; i < communityLists.length; i++) {
+    //   const community = communityLists[i];
+    //   const {
+    //     routineName,
+    //     description,
+    //     myExercise,
+    //     userId,
+    //     routineTime,
+    //     isLike,
+    //     totalLike,
+    //   } = community;
+    //   console.log(community.routineName);
+    //   // console.log(i, community[i]);
+    // }
+
+    // const result = await Community.find({
+    //   'myExercise.exerciseName': { $regex: `${exerciseName}`, $options: 'i' },
+    // });
+    // result.forEach((routine) => {
+    //   routine.totalLike = routine.like.length;
+    //   const likeUser = [];
+    //   routine.like.forEach((like) => likeUser.push(like.userId));
+    //   const isLike = likeUser.includes(Number(userId));
+    //   routine.isLike = isLike;
+    //   routine.importCnt = routine.import.length;
+    //   routine.import = null;
+    //   routine.like = null;
+    // });
+
+    //totalLike,
+    res.status(200).send({ message: 'success', communityLists });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(error);
+  }
+});
 
 // //커뮤니티 루틴 디테일 가져오기
 // router.get('/:routineId', async (req, res) => {
