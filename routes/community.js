@@ -16,7 +16,8 @@ router.post('/', authenticateJWT, async (req, res) => {
     const { routineName, myExercise, description, routineTime, isBookmarked } =
       req.body;
     const userId = req.userInfo.id;
-    const communityNickname = req.userInfo?.communityNickname;
+    const communityNickname =
+      req.body.communityNickname || req.userInfo?.communityNickname;
     if (!userId) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
       return;
@@ -28,6 +29,7 @@ router.post('/', authenticateJWT, async (req, res) => {
         description,
         routineTime,
         isBookmarked,
+        communityNickname,
       });
       for (let i = 0; i < myExercise.length; i++) {
         const { exerciseName, set } = myExercise[i];
@@ -50,13 +52,16 @@ router.post('/', authenticateJWT, async (req, res) => {
           });
         }
       }
-      await User.update(
-        { communityNickname },
-        {
-          where: { id: userId },
-        }
-      );
-      res.status(200).send({ message: 'success' });
+
+      if (!req.userInfo?.communityNickname) {
+        await User.update(
+          { communityNickname },
+          {
+            where: { id: userId },
+          }
+        );
+        res.status(200).send({ message: 'success' });
+      }
     }
   } catch (error) {
     console.error(error);
