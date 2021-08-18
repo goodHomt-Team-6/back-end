@@ -10,6 +10,11 @@ const Challenge = require('./challenge');
 const Challenge_Exercise = require('./challenge_exercise');
 const Challenge_Set = require('./challenge_set');
 const Challenge_User = require('./challenge_user');
+//community
+const Community = require('./community');
+const Community_Exercise = require('./community_exercise');
+const Community_Set = require('./community_set');
+const Like_User = require('./like_user');
 
 const env = process.env.NODE_ENV || 'development';
 const config = require('../config/config')[env];
@@ -35,6 +40,11 @@ db.Challenge = Challenge;
 db.Challenge_Exercise = Challenge_Exercise;
 db.Challenge_Set = Challenge_Set;
 db.Challenge_User = Challenge_User;
+//community
+db.Community = Community;
+db.Community_Exercise = Community_Exercise;
+db.Community_Set = Community_Set;
+db.Like_User = Like_User;
 
 User.init(sequelize);
 Category.init(sequelize);
@@ -48,6 +58,12 @@ Challenge_Exercise.init(sequelize);
 Challenge_Set.init(sequelize);
 Challenge_User.init(sequelize);
 
+//community
+Community.init(sequelize);
+Community_Exercise.init(sequelize);
+Community_Set.init(sequelize);
+Like_User.init(sequelize);
+
 User.associate(db);
 Category.associate(db);
 Default_Exercise.associate(db);
@@ -59,5 +75,10 @@ Challenge.associate(db);
 Challenge_Exercise.associate(db);
 Challenge_Set.associate(db);
 Challenge_User.associate(db);
+//community
+Community.associate(db);
+Community_Exercise.associate(db);
+Community_Set.associate(db);
+Like_User.associate(db);
 
 module.exports = db;

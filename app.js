@@ -25,6 +25,10 @@ const commentRouter = require('./routes/comment');
 const likeRouter = require('./routes/like');
 const adminRouter = require('./routes/admin');
 
+//community_k
+const community_k_Router = require('./routes/community_k');
+const like_k_Router = require('./routes/like_k');
+
 const { schedule } = require('./utils/schedule');
 
 dotenv.config();
@@ -37,7 +41,7 @@ app.set('port', process.env.PORT || 8005);
 app.set('view engine', 'html');
 
 sequelize
-  .sync({ force: false })
+  .sync({ force: false }) //true로 바꾸면 테이블을 생성, 그리고 다시 false로
   .then(() => {
     console.log('SQL 데이터베이스 연결 성공');
   })
@@ -121,6 +125,11 @@ app.use('/comment', commentRouter);
 app.use('/like', likeRouter);
 
 app.use('/admin', adminRouter);
+
+//community_k
+app.use('/community_k', community_k_Router);
+
+app.use('/like_k', like_k_Router);
 
 //error router
 app.use((req, res, next) => {
