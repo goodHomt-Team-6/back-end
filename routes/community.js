@@ -121,6 +121,7 @@ router.get('/', async (req, res) => {
           // ],
         },
       ],
+      order: [['createdAt', 'DESC']],
     });
 
     res.status(200).send({ message: 'success', result });
@@ -199,7 +200,7 @@ router.delete('/:routineId', authenticateJWT, async (req, res) => {
     const community = await Community.findOne({
       where: { id: communityId },
     });
-
+    console.log('community!!', community);
     if (+userId !== community.userId) {
       res.status(500).json({ errorMessage: '사용자가 일치하지 않습니다.' });
       return;
