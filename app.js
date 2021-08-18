@@ -20,8 +20,8 @@ const exerciseRouter = require('./routes/exercise');
 const routineRouter = require('./routes/routine');
 const communityRouter = require('./routes/community');
 const challengeRouter = require('./routes/challenge');
-const commentRouter = require('./routes/comment');
 const likeRouter = require('./routes/like');
+// const commentRouter = require('./routes/comment');
 
 const { schedule } = require('./utils/schedule');
 
@@ -106,9 +106,9 @@ app.use('/community', communityRouter);
 
 app.use('/challenges', challengeRouter);
 
-// app.use('/comment', commentRouter);
+app.use('/like', likeRouter);
 
-// app.use('/like', likeRouter);
+// app.use('/comment', commentRouter);
 
 //error router
 app.use((req, res, next) => {

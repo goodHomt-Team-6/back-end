@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const Sequelize = require('sequelize');
 const { sequelize } = require('../models');
 const User = require('../models/user');
 const Community = require('../models/community');
 const Community_Exercise = require('../models/community_exercise');
 const Community_Set = require('../models/community_set');
-const Like_User = require('../models/like_user');
+
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
 
 //커뮤니티 루틴 등록
@@ -92,14 +91,14 @@ router.get('/', async (req, res) => {
                      WHERE
                         like_user.communityId = community.id
                 )`),
-            'totalCount',
+            'totalLike',
           ],
           [
             sequelize.literal(`(
-                    SELECT COUNT(userId)
+                    SELECT IF( COUNT(userId) > 0, true, false) as isLiked
                       FROM like_user AS like_user
                      WHERE
-                        like_user.communityId = community.id
+                        like_user.communityId = community.id and like_user.userId = ${userId}
                 )`),
             'isLiked',
           ],
@@ -112,46 +111,19 @@ router.get('/', async (req, res) => {
         },
         {
           model: Community_Exercise,
+          attributes: ['exerciseName'],
           as: 'myExercise',
-          include: [
-            {
-              model: Community_Set,
-            },
-          ],
+          // include: [
+          //   {
+          //     model: Community_Set,
+          //     as: 'set',
+          //   },
+          // ],
         },
       ],
     });
-    // for (let i = 0; i < communityLists.length; i++) {
-    //   const community = communityLists[i];
-    //   const {
-    //     routineName,
-    //     description,
-    //     myExercise,
-    //     userId,
-    //     routineTime,
-    //     isLike,
-    //     totalLike,
-    //   } = community;
-    //   console.log(community.routineName);
-    //   // console.log(i, community[i]);
-    // }
 
-    // const result = await Community.find({
-    //   'myExercise.exerciseName': { $regex: `${exerciseName}`, $options: 'i' },
-    // });
-    // result.forEach((routine) => {
-    //   routine.totalLike = routine.like.length;
-    //   const likeUser = [];
-    //   routine.like.forEach((like) => likeUser.push(like.userId));
-    //   const isLike = likeUser.includes(Number(userId));
-    //   routine.isLike = isLike;
-    //   routine.importCnt = routine.import.length;
-    //   routine.import = null;
-    //   routine.like = null;
-    // });
-
-    //totalLike,
-    res.status(200).send({ message: 'success', communityLists });
+    res.status(200).send({ message: 'success', result });
   } catch (error) {
     console.error(error);
     res.status(500).json(error);
@@ -159,43 +131,71 @@ router.get('/', async (req, res) => {
 });
 
 // //커뮤니티 루틴 디테일 가져오기
-// router.get('/:routineId', async (req, res) => {
-//   try {
-//     const result = await Community.findById(req.params.routineId);
-//     result.totalLike = result.like.length;
-//     result.import = null;
-//     result.like = null;
-//     res.status(200).send({ message: 'success', result });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json(error);
-//   }
-// });
+router.get('/:routineId', async (req, res) => {
+  const routineId = req.params.routineId;
+  try {
+    const result = await Community.findOne({
+      where: { id: routineId },
+      // attributes: {
+      //   include: [
+      //     [
+      //       sequelize.literal(`(
+      //               SELECT COUNT(userId)
+      //                 FROM like_user AS like_user
+      //                WHERE
+      //                   like_user.communityId = community.id
+      //           )`),
+      //       'totalLike',
+      //     ],
+      //   ],
+      // },
+      include: [
+        {
+          model: User,
+          attributes: ['img'],
+        },
+        {
+          model: Community_Exercise,
+          as: 'myExercise',
+          include: [
+            {
+              model: Community_Set,
+              as: 'set',
+            },
+          ],
+        },
+      ],
+    });
+    res.status(200).send({ message: 'success', result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(error);
+  }
+});
 
 // //커뮤니티 루틴 삭제하기
 // //authenticateJWT
-// router.delete('/:routineId', authenticateJWT, async (req, res) => {
-//   try {
-//     const userId = req.userInfo.id;
-//     const routine = await Community.findById(req.params.routineId);
+router.delete('/:routineId', authenticateJWT, async (req, res) => {
+  try {
+    const userId = req.userInfo.id;
+    const communityId = req.params.routineId;
+    const community = await Community.findOne({
+      where: { id: communityId },
+    });
 
-//     if (!req.userInfo.id) {
-//       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
-//       return;
-//     }
-//     if (Number(userId) !== routine.userId) {
-//       res.status(500).json({ errorMessage: '사용자가 일치하지 않습니다.' });
-//       return;
-//     }
-//     if (Number(userId) === routine.userId) {
-//       await Community.findByIdAndDelete(req.params.routineId);
-//       res.status(200).send({ message: 'success' });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json(error);
-//   }
-// });
+    if (+userId !== community.userId) {
+      res.status(500).json({ errorMessage: '사용자가 일치하지 않습니다.' });
+      return;
+    }
+    await Community.destroy({
+      where: { id: communityId },
+    });
+    res.status(200).send({ message: 'success' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(error);
+  }
+});
 
 // //커뮤니티 루틴에서 나의루틴으로 가져오기
 // //authenticateJWT

@@ -44,6 +44,7 @@ module.exports = class Community_Set extends Sequelize.Model {
       foreignKey: 'communityExerciseId',
       targetKey: 'id',
       onDelete: 'CASCADE',
+      as: 'set',
     });
   }
 };

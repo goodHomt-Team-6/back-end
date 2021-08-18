@@ -25,6 +25,7 @@ module.exports = class Community_Exercise extends Sequelize.Model {
     db.Community_Exercise.hasMany(db.Community_Set, {
       foreignKey: 'communityExerciseId',
       sourceKey: 'id',
+      as: 'set',
     });
     db.Community_Exercise.belongsTo(db.Community, {
       foreignKey: 'communityId',

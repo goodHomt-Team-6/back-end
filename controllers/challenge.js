@@ -1,6 +1,4 @@
 const { Op } = require('sequelize');
-const CronJob = require('cron').CronJob;
-
 const Challenge = require('../models/challenge');
 const Challenge_User = require('../models/challenge_user');
 const Challenge_Exercise = require('../models/challenge_exercise');

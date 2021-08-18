@@ -28,7 +28,7 @@ module.exports = class Like_User extends Sequelize.Model {
       targetKey: 'id',
     });
     db.Like_User.belongsTo(db.Community, {
-      foreignKey: 'challengeId',
+      foreignKey: 'communityId',
       targetKey: 'id',
     });
   }

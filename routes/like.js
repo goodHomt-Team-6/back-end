@@ -1,36 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const Community = require('../mongoose_models/community');
+const { Op } = require('sequelize');
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
-
+const Like_User = require('../models/like_user');
 //Like등록 || 삭제
 // authenticateJWT
 router.put('/:routineId', authenticateJWT, async (req, res) => {
   const userId = req.userInfo.id;
-  const nickname = req.userInfo.nickname;
-  const routine = await Community.findById(req.params.routineId);
-
-  const likeUser = [];
-  routine.like.forEach((like) => likeUser.push(like.userId));
-  likeUser.includes(Number(userId));
+  const communityId = req.params.routineId;
 
   try {
-    if (!req.userInfo) {
-      res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
-      return;
-    }
-    if (likeUser.includes(Number(userId)) == false) {
-      await Community.findByIdAndUpdate(req.params.routineId, {
-        $push: { like: { nickname, userId } },
+    const likeUser = await Like_User.findOne({
+      where: {
+        [Op.and]: { userId, communityId },
+      },
+    });
+    if (likeUser) {
+      await Like_User.destroy({
+        where: {
+          [Op.and]: { userId, communityId },
+        },
       });
-      res.status(200).send({ message: 'success' });
-    }
-    if (likeUser.includes(Number(userId)) == true) {
-      await Community.findByIdAndUpdate(req.params.routineId, {
-        $pull: { like: { userId: userId } },
+    } else {
+      await Like_User.create({
+        userId,
+        communityId,
       });
-      res.status(200).send({ message: 'success' });
     }
+
+    res.status(200).send({ message: 'success' });
   } catch (error) {
     console.error(error);
     res.status(500).json(error);
