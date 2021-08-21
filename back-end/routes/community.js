@@ -89,7 +89,7 @@ router.get('/', async (req, res) => {
                     SELECT COUNT(userId)
                       FROM like_user AS like_user
                      WHERE
-                        like_user.communityId = Community.id
+                        like_user.communityId = community.id
                 )`),
             'totalLike',
           ],
@@ -98,7 +98,7 @@ router.get('/', async (req, res) => {
                     SELECT IF( COUNT(userId) > 0, true, false) as isLiked
                       FROM like_user AS like_user
                      WHERE
-                        like_user.communityId = Community.id and like_user.userId = ${userId}
+                        like_user.communityId = community.id and like_user.userId = ${userId}
                 )`),
             'isLiked',
           ],
@@ -121,7 +121,6 @@ router.get('/', async (req, res) => {
           // ],
         },
       ],
-      order: [['createdAt', 'DESC']],
     });
 
     res.status(200).send({ message: 'success', result });
@@ -174,25 +173,8 @@ router.get('/:routineId', async (req, res) => {
   }
 });
 
-//dupcheck
-router.post('/dupCheck', async (req, res) => {
-  try {
-    const { communityNickname } = req.body;
-    const exist = await User.findOne({
-      where: { communityNickname },
-    });
-    if (exist)
-      return res
-        .status(401)
-        .json({ ok: false, message: '이미 있는 닉네임입니다' });
-    else return res.json({ ok: true, message: '닉네임을 추가했습니다' });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ ok: false });
-  }
-});
-
 // //커뮤니티 루틴 삭제하기
+// //authenticateJWT
 router.delete('/:routineId', authenticateJWT, async (req, res) => {
   try {
     const userId = req.userInfo.id;
@@ -200,7 +182,7 @@ router.delete('/:routineId', authenticateJWT, async (req, res) => {
     const community = await Community.findOne({
       where: { id: communityId },
     });
-    console.log('community!!', community);
+
     if (+userId !== community.userId) {
       res.status(500).json({ errorMessage: '사용자가 일치하지 않습니다.' });
       return;

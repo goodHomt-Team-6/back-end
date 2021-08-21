@@ -3,7 +3,7 @@ require('dotenv').config();
 module.exports = {
   development: {
     username: 'root',
-    password: process.env.DB_PASSWORD,
+    password: '1234',
     database: 'node_health',
     host: '127.0.0.1',
     dialect: 'mysql',
@@ -18,10 +18,10 @@ module.exports = {
     timezone: '+09:00',
   },
   production: {
-    username: 'root',
+    username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    database: 'node_health',
-    host: '127.0.0.1',
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
     dialect: 'mysql',
     timezone: '+09:00',
   },

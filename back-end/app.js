@@ -23,8 +23,6 @@ const challengeRouter = require('./routes/challenge');
 const likeRouter = require('./routes/like');
 // const commentRouter = require('./routes/comment');
 
-const { schedule } = require('./utils/schedule');
-
 dotenv.config();
 
 const app = express();
@@ -49,6 +47,7 @@ nunjucks.configure('views', {
 });
 
 //schedule 설정
+const { schedule } = require('./utils/schedule');
 schedule();
 
 // middleware
@@ -123,6 +122,6 @@ app.use((error, req, res, next) => {
   res.json({ ok: false, errorMesaage: error.message });
 });
 
-app.listen(app.get('port'), () => {
+app.listen(8005, () => {
   console.log(app.get('port'), '번 포트 대기중....');
 });
