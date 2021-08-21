@@ -5,7 +5,7 @@
   "author": "lee",
   "license": "ISC",
   "scripts": {
-    "start": "cross-env NODE_ENV=production PORT=80 pm2 start app.js",
+    "start": "cross-env NODE_ENV=production node app.js",
     "dev": "nodemon app",
     "test": "jest",
     "test:watch": "jest --watch",
