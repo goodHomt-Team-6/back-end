@@ -81,6 +81,7 @@ router.get('/:id', authenticateJWT, async (req, res) => {
         'rating',
         'isBookmarked',
         'isCompleted',
+        'createdAt',
       ],
       where: {
         [Op.and]: [{ userId }, id],
@@ -213,6 +214,27 @@ router.patch('/result', authenticateJWT, async (req, res) => {
     console.error(error);
     res.status(500).send({ errorMessage: error });
   }
+});
+
+router.put('/:routineId', async (req, res) => {
+  const userId = req.userId;
+  const routineId = req.params.routineId;
+  const { myExercise } = req.body;
+
+  if (myExercise) {
+    for (let i = 0; i < myExercise.length; i++) {
+      const { set } = myExercise[i];
+
+      for (let i = 0; i < set.length; i++) {
+        const inputSet = set[i];
+        console.log(inputSet);
+        await Set.update(inputSet, {
+          where: { id: inputSet.id },
+        });
+      }
+    }
+  }
+  res.status(200).send({ ok: true });
 });
 
 router.delete('/:routineId', authenticateJWT, async (req, res) => {

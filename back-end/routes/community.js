@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Sequelize = require('sequelize');
 const { sequelize } = require('../models');
 const User = require('../models/user');
 const Community = require('../models/community');
@@ -71,16 +72,31 @@ router.post('/', authenticateJWT, async (req, res) => {
 // 커뮤니티 루틴 전부 가져오기
 router.get('/', async (req, res) => {
   try {
-    const { userId } = req.query;
+    const { userId, exerciseName } = req.query;
 
-    // let where;
-    // if (exerciseName) {
-    //   where = Sequelize.literal(
-    //     `Community_Exercise.exerciseName LIKE '%${exerciseName}%'`
-    //   );
-    // } else {
-    //   where = {};
-    // };
+    let where;
+    if (exerciseName) {
+      const exercise = await Community.findAll({
+        attributes: ['id'],
+        include: [
+          {
+            model: Community_Exercise,
+            attributes: ['id'],
+            as: 'myExercise',
+            where: Sequelize.literal(
+              `myExercise.exerciseName LIKE '%${exerciseName}%'`
+            ),
+          },
+        ],
+      });
+      const exerciseIds = [];
+      for (let i = 0; i < exercise.length; i++) {
+        exerciseIds.push(exercise[i].id);
+      }
+      where = Sequelize.literal(`Community.id IN (${exerciseIds.join(',')})`);
+    } else {
+      where = {};
+    }
     const result = await Community.findAll({
       attributes: {
         include: [
@@ -89,7 +105,7 @@ router.get('/', async (req, res) => {
                     SELECT COUNT(userId)
                       FROM like_user AS like_user
                      WHERE
-                        like_user.communityId = community.id
+                        like_user.communityId = Community.id
                 )`),
             'totalLike',
           ],
@@ -98,12 +114,13 @@ router.get('/', async (req, res) => {
                     SELECT IF( COUNT(userId) > 0, true, false) as isLiked
                       FROM like_user AS like_user
                      WHERE
-                        like_user.communityId = community.id and like_user.userId = ${userId}
+                        like_user.communityId = Community.id and like_user.userId = ${userId}
                 )`),
             'isLiked',
           ],
         ],
       },
+      where,
       include: [
         {
           model: User,
