@@ -8,6 +8,9 @@ module.exports = class Routine_Exercise extends Sequelize.Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        order: {
+          type: Sequelize.INTEGER,
+        },
       },
       {
         sequelize,
@@ -26,12 +29,12 @@ module.exports = class Routine_Exercise extends Sequelize.Model {
     db.Routine_Exercise.hasMany(db.Set, {
       foreignKey: 'routineExerciseId',
       sourceKey: 'id',
+      onDelete: 'CASCADE',
       as: 'set',
     });
     db.Routine_Exercise.belongsTo(db.Routine, {
       foreignKey: 'routineId',
       targetKey: 'id',
-      onDelete: 'CASCADE',
     });
   }
 };

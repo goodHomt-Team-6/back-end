@@ -2,17 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const { getKakaoUser } = require('../middlewares/getKakaoUser');
-const { jwtCreate } = require('../utils/jwt');
-const { loginUser } = require('../utils/setLoginUser');
+const { auth } = require('../controllers/auth');
 
-router.post('/kakaoLogin', getKakaoUser, async (req, res) => {
-  const profile = req.kakao;
-  const [accessToken, refreshToken] = await jwtCreate(profile);
-
-  res.json({
-    ok: true,
-    loginUser: loginUser(accessToken, refreshToken),
-  });
-});
+router.post('/kakaoLogin', getKakaoUser, auth);
 
 module.exports = router;

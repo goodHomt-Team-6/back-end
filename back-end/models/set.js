@@ -43,8 +43,8 @@ module.exports = class Set extends Sequelize.Model {
     db.Set.belongsTo(db.Routine_Exercise, {
       foreignKey: 'routineExerciseId',
       targetKey: 'id',
-      as: 'set',
       onDelete: 'CASCADE',
+      as: 'set',
     });
   }
 };
