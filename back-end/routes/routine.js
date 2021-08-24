@@ -216,7 +216,7 @@ router.patch('/result', authenticateJWT, async (req, res) => {
   }
 });
 
-router.put('/:routineId', async (req, res) => {
+router.put('/:routineId', authenticateJWT, async (req, res) => {
   const userId = req.userId;
   const routineId = req.params.routineId;
   const { myExercise } = req.body;
