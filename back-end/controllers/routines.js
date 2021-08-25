@@ -6,7 +6,7 @@ const Set = require('../models/set');
 
 //루틴 가져오기
 const allRoutine = async (req, res) => {
-  const userId = req.useId;
+  const userId = req.userId;
   const params = req.query;
   let where;
   if (params.sorting) {
@@ -51,9 +51,12 @@ const allRoutine = async (req, res) => {
           ],
         },
       ],
-      order: [['myExercise', 'order', 'ASC']],
+      order: [
+        ['createdAt', 'DESC'],
+        ['myExercise', 'order', 'ASC'],
+      ],
     });
-    res.json({ ok: true, result });
+    res.json({ ok: true, result: result[0] });
   } catch (error) {
     console.error(error);
     res.status(500).send({ errorMessage: error });
