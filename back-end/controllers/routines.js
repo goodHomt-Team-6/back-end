@@ -56,7 +56,7 @@ const allRoutine = async (req, res) => {
         ['myExercise', 'order', 'ASC'],
       ],
     });
-    res.json({ ok: true, result: result[0] });
+    res.json({ ok: true, result: [result[0]] });
   } catch (error) {
     console.error(error);
     res.status(500).send({ errorMessage: error });
