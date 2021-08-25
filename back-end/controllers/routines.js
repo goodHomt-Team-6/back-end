@@ -6,7 +6,7 @@ const Set = require('../models/set');
 
 //루틴 가져오기
 const allRoutine = async (req, res) => {
-  const userId = req.userId;
+  const userId = req.useId;
   const params = req.query;
   let where;
   if (params.sorting) {
@@ -51,7 +51,7 @@ const allRoutine = async (req, res) => {
           ],
         },
       ],
-      order: [['createdAt', 'DESC']],
+      order: [['myExercise', 'order', 'ASC']],
     });
     res.json({ ok: true, result });
   } catch (error) {
@@ -101,7 +101,9 @@ const routineDetail = async (req, res) => {
           ],
         },
       ],
-      order: [['myExercise', 'order', 'ASC']],
+      order: Sequelize.literal(
+        'myExercise.order ASC, `myExercise->set`.order ASC'
+      ),
     });
     res.json({ ok: true, result });
   } catch (error) {
@@ -175,7 +177,7 @@ const routineBookmark = async (req, res) => {
       }
     );
     console.log(result);
-    res.json({ ok: true, routineId: id });
+    res.json({ ok: true, routineId: id, routineName });
   } catch (error) {
     console.error(error);
     res.status(500).send({ errorMessage: error });
@@ -252,6 +254,7 @@ const routineUpdate = async (req, res, next) => {
       for (let j = 0; j < set.length; j++) {
         const inputSet = set[j];
         inputSet.routineExerciseId = id;
+        inputSet.order = j + 1;
         await Set.create(inputSet);
       }
     }

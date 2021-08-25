@@ -5,9 +5,10 @@
   "author": "lee",
   "license": "ISC",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node app.js",
+    "start": "cross-env NODE_ENV=production pm2-runtime app.js",
     "dev": "nodemon app",
     "test": "jest",
+    "build": "babel /back-end  dist",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage"
   },
@@ -37,7 +38,6 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.0",
     "passport-kakao": "^1.0.1",
-    "pm2": "^5.1.0",
     "request": "^2.88.2",
     "sequelize": "^6.6.5",
     "swagger-jsdoc": "^6.1.0",
@@ -45,6 +45,9 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@babel/cli": "^7.14.8",
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
     "@jest-mock/express": "^1.4.3",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.31.0",

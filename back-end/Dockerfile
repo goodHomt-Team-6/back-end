@@ -12,6 +12,8 @@ COPY . .
 
 RUN npx sequelize db:create
 
+RUN npm install pm2 -g
+
 RUN chown -R node /app
 USER node
 
