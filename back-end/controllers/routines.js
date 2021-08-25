@@ -136,7 +136,7 @@ const routineEnroll = async (req, res) => {
       if (existRoutine.length > 0) {
         await Routine.destroy({
           where: Sequelize.literal(
-            `Routine.userId=${userId} and  DATE_FORMAT(Routine.createdAt, '%Y%m%d') = ${date}`
+            `userId=${userId} and  DATE_FORMAT(createdAt, '%Y%m%d') = ${date}`
           ),
         });
       }

@@ -3,9 +3,8 @@ exports.getKakaoUser = async (req, res, next) => {
   const {
     token: { access_token },
   } = req.body;
-  console.log('req.body', req.body);
+
   try {
-    console.log('accessToken!!!', access_token);
     const Authorization = `Bearer ${access_token}`;
     const profile = await axios({
       method: 'get',
