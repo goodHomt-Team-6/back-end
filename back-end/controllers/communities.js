@@ -74,6 +74,7 @@ const allCommunities = async (req, res) => {
           // ],
         },
       ],
+      order: [['createdAt', 'DESC']],
     });
 
     res.status(200).send({ message: 'success', result });

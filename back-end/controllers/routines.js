@@ -25,7 +25,7 @@ const allRoutine = async (req, res) => {
     where = {};
   }
   try {
-    const result = await Routine.findAll({
+    const routines = await Routine.findAll({
       where: {
         [Op.and]: [{ userId }, where],
       },
@@ -56,7 +56,9 @@ const allRoutine = async (req, res) => {
         ['myExercise', 'order', 'ASC'],
       ],
     });
-    res.json({ ok: true, result: [result[0]] });
+    const result = [];
+    if (routines.length > 0) result.push(routines[0]);
+    res.json({ ok: true, result });
   } catch (error) {
     console.error(error);
     res.status(500).send({ errorMessage: error });
@@ -118,13 +120,26 @@ const routineDetail = async (req, res) => {
 //루틴 등록
 const routineEnroll = async (req, res) => {
   try {
-    const { myExercise } = req.body;
+    const { myExercise, date } = req.body;
     const userId = req.userId;
     const routineName = `${myExercise[0]['exerciseName']} ${
       myExercise.length > 1 ? '외 ' + (myExercise.length - 1) + '개' : ''
     }`;
 
     if (myExercise) {
+      const existRoutine = await Routine.findAll({
+        attributes: ['id'],
+        where: Sequelize.literal(
+          `Routine.userId=${userId} and  DATE_FORMAT(Routine.createdAt, '%Y%m%d') = ${date}`
+        ),
+      });
+      if (existRoutine.length > 0) {
+        await Routine.destroy({
+          where: Sequelize.literal(
+            `Routine.userId=${userId} and  DATE_FORMAT(Routine.createdAt, '%Y%m%d') = ${date}`
+          ),
+        });
+      }
       const routine = await Routine.create({
         userId,
         routineName,
