@@ -5,6 +5,7 @@ const {
   communityDetail,
   communityEnroll,
   communityDelete,
+  dupCheckNickname,
 } = require('../controllers/communities');
 
 const { authenticateJWT } = require('../middlewares/authenticateJWT');
@@ -21,6 +22,8 @@ router.post('/', authenticateJWT, communityEnroll);
 // //커뮤니티 루틴 삭제하기
 // //authenticateJWT
 router.delete('/:routineId', authenticateJWT, communityDelete);
+
+router.post('/dupCheck', authenticateJWT, dupCheckNickname);
 
 // //커뮤니티 루틴에서 나의루틴으로 가져오기
 // //authenticateJWT

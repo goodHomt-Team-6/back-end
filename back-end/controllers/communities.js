@@ -209,9 +209,27 @@ const communityDelete = async (req, res) => {
   }
 };
 
+const dupCheckNickname = async (req, res) => {
+  try {
+    const { communityNickname } = req.body;
+    const exist = await User.findOne({
+      where: { communityNickname },
+    });
+    if (exist)
+      return res
+        .status(401)
+        .json({ ok: false, message: '이미 있는 닉네임입니다' });
+    else return res.json({ ok: true, message: '닉네임을 추가했습니다' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ ok: false });
+  }
+};
+
 module.exports = {
   allCommunities,
   communityDetail,
   communityEnroll,
   communityDelete,
+  dupCheckNickname,
 };
