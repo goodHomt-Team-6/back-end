@@ -15,8 +15,22 @@ exports.authenticateJWT = async (req, res, next) => {
     console.log('message1', iAccessToken);
     console.log('message2', irefreshToken);
 
+    //유효하지 않는 토큰
+    if (
+      iAccessToken === 'invalid signature' ||
+      irefreshToken === 'invalid signature'
+    ) {
+      return res.status(403).json({ ok: false, message: 'invalid token' });
+    }
+
+    //잘못된 형식의 토큰
     if (iAccessToken === 'jwt malformed' || irefreshToken === 'jwt malformed') {
-      res.status(403).json({ ok: false, message: 'invalid token' });
+      return res.status(403).json({ ok: false, message: 'malformed token' });
+    }
+
+    //두토큰다 유효기간이 끝난 겨우
+    if (iAccessToken === 'jwt expired' || irefreshToken === 'jwt expired') {
+      return res.status(403).json({ ok: false, message: 'invalid token' });
     }
 
     if (iAccessToken === 'jwt expired') {
