@@ -35,6 +35,10 @@ module.exports = class User extends Sequelize.Model {
         communityNickname: {
           type: Sequelize.STRING,
         },
+        finishTutorial: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+        },
       },
       {
         sequelize,

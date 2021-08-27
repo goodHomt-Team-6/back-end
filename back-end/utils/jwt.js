@@ -25,11 +25,7 @@ exports.jwtCreate = async (profile) => {
       where: { [Op.and]: [{ snsId }, { provider: 'kakao' }] },
     });
 
-    console.log('exUserLogin!!!', exUser);
     if (exUser) {
-      basicInfo.communityNickname = exUser.communityNickname
-        ? exUser.communityNickname
-        : null;
       await User.update(
         {
           ...basicInfo,
@@ -39,7 +35,11 @@ exports.jwtCreate = async (profile) => {
           where: { snsId },
         }
       );
+      basicInfo.communityNickname = exUser.communityNickname
+        ? exUser.communityNickname
+        : null;
       basicInfo.id = exUser.id;
+      basicInfo.finishTutorial = exUser.finishTutorial;
     } else {
       const user = await User.create({
         ...basicInfo,
@@ -48,6 +48,7 @@ exports.jwtCreate = async (profile) => {
         refreshToken,
       });
       basicInfo.id = user.id;
+      basicInfo.finishTutorial = false;
     }
     const accessToken = jwt.sign(basicInfo, process.env.JWT_SECRET, {
       expiresIn: process.env.ACCESSTOKEN_EXPIRE,
