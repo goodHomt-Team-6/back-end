@@ -29,18 +29,26 @@ exports.authenticateJWT = async (req, res, next) => {
     }
 
     //두토큰다 유효기간이 끝난 겨우
-    if (iAccessToken === 'jwt expired' || irefreshToken === 'jwt expired') {
+    if (iAccessToken === 'jwt expired' && irefreshToken === 'jwt expired') {
       return res.status(403).json({ ok: false, message: 'invalid token' });
     }
 
     if (iAccessToken === 'jwt expired') {
       console.log('accessToken Expired!!!');
       if (irefreshToken) {
-        const [accessToken, id, nickname, img, communityNickname] =
-          await getNewAuth(refreshToken);
-        req.loginUser = loginUser(accessToken, refreshToken);
-        req.userId = id;
-        req.userInfo = { id, nickname, img, communityNickname };
+        const newAuth = await getNewAuth(refreshToken);
+
+        if (!newAuth)
+          return res.status(403).json({ ok: false, message: 'invalid token' });
+
+        req.loginUser = loginUser(newAuth.accessToken, newAuth.refreshToken);
+        req.userId = newAuth.id;
+        req.userInfo = {
+          id: newAuth.id,
+          nickname: newAuth.nickname,
+          img: newAuth.img,
+          communityNickname: newAuth.communityNickname,
+        };
         next();
       } else {
         res.json({

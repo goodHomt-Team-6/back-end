@@ -7,23 +7,26 @@ exports.getNewAuth = async function (refreshToken) {
     where: { refreshToken },
   });
 
-  const basicInfo = {
-    id: info.id,
-    email: info.email,
-    nickname: info.nickname,
-    img: info.img,
-    communityNickname: info.communityNickname,
-  };
+  if (info) {
+    const basicInfo = {
+      id: info.id,
+      email: info.email,
+      nickname: info.nickname,
+      img: info.img,
+      communityNickname: info.communityNickname,
+    };
 
-  console.log('basicInfo!!!!@!@!@', basicInfo);
-  const accessToken = jwt.sign(basicInfo, process.env.JWT_SECRET, {
-    expiresIn: process.env.ACCESSTOKEN_EXPIRE,
-  });
-  return [
-    accessToken,
-    info.id,
-    info.nickname,
-    info.img,
-    info.communityNickname,
-  ];
+    console.log('basicInfo!!!!@!@!@', basicInfo);
+    const accessToken = jwt.sign(basicInfo, process.env.JWT_SECRET, {
+      expiresIn: process.env.ACCESSTOKEN_EXPIRE,
+    });
+    return {
+      accessToken,
+      id: info.id,
+      nickname: info.nickname,
+      img: info.img,
+      communityNickname: info.communityNickname,
+    };
+  }
+  return null;
 };
