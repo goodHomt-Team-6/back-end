@@ -1,20 +1,9 @@
 FROM node:14
 
-RUN mkdir -p /app
+VOLUME /deploy/node-health
 
-WORKDIR /app
+COPY ./start-server.sh /usr/local/bin
+RUN ln -s /usr/local/bin/start-server.sh /start-server.sh
 
-COPY ./package.json ./
 
-RUN npm install
-
-COPY . .
-
-RUN npx sequelize db:create
-
-RUN npm install pm2 -g
-
-RUN chown -R node /app
-USER node
-
-CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "production"]
+CMD ["start-server.sh"]
