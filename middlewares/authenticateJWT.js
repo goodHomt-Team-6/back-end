@@ -15,7 +15,7 @@ exports.authenticateJWT = async (req, res, next) => {
     console.log('message1', iAccessToken);
     console.log('message2', irefreshToken);
 
-    //유효하지 않는 토큰
+    //유효하지 않는 토큰:signature가 맞지 않음
     if (
       iAccessToken === 'invalid signature' ||
       irefreshToken === 'invalid signature'

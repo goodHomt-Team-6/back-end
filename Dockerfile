@@ -17,4 +17,4 @@ RUN npm install pm2 -g
 RUN chown -R node /app
 USER node
 
-CMD ["npm", "run", "start"]
+CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "production"]

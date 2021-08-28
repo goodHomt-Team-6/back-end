@@ -30,6 +30,7 @@ exports.allChallenge = async (req, res) => {
 exports.challengeForUserBeforeJoin = async (req, res) => {
   const userId = req.userId;
   const query = req.query;
+  console.log('userId!!!', userId);
 
   //메인에서 챌린지가져올 떄 쓸 조건 => 메인 api 작성후 적용
   //운동시작시간 > 현재시간 - 런닝시간
