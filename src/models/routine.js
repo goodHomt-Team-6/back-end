@@ -41,7 +41,6 @@ module.exports = class Routine extends Sequelize.Model {
       foreignKey: 'routineId',
       sourceKey: 'id',
       as: 'myExercise',
-      onDelete: 'CASCADE',
     });
     db.Routine.belongsTo(db.User, {
       foreignKey: 'userId',
