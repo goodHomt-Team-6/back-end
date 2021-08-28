@@ -10,7 +10,7 @@ const myFormat = printf(({ level, message, label, timestamp }) => {
 const options = {
   file: {
     level: 'info',
-    filename: `${appRoot}/logs/log.log`, // 로그파일을 남길 경로
+    filename: `${appRoot}/src/logs/log.log`, // 로그파일을 남길 경로
     handleExceptions: true,
     json: false,
     maxsize: 5242880, // 5MB
