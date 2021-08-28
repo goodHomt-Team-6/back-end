@@ -9,6 +9,7 @@ const allRoutine = async (req, res) => {
   const userId = req.userId;
   const params = req.query;
   let where;
+  let limit;
   if (params.sorting) {
     if (params.sorting === 'bookmark') {
       where = { isBookmarked: true };
@@ -21,11 +22,12 @@ const allRoutine = async (req, res) => {
     where = Sequelize.literal(
       `DATE_FORMAT(Routine.createdAt, '%Y%m%d') = ${params.date}`
     );
+    limit = 1;
   } else {
     where = {};
   }
   try {
-    const routines = await Routine.findAll({
+    const result = await Routine.findAll({
       where: {
         [Op.and]: [{ userId }, where],
       },
@@ -55,9 +57,8 @@ const allRoutine = async (req, res) => {
         ['createdAt', 'DESC'],
         ['myExercise', 'order', 'ASC'],
       ],
+      limit,
     });
-    const result = [];
-    if (routines.length > 0) result.push(routines[0]);
     res.json({ ok: true, result });
   } catch (error) {
     console.error(error);
