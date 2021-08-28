@@ -89,7 +89,7 @@ app.use(cors({ origin: '*', credentials: true }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get('/', (req, res) => {
-  res.json({ ok: true });
+  res.json({ ok: true, message: 'commoneond' });
   // res.render('index');
 });
 
