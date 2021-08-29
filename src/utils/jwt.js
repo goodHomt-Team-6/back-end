@@ -26,6 +26,12 @@ exports.jwtCreate = async (profile) => {
     });
 
     if (exUser) {
+      basicInfo.communityNickname = exUser.communityNickname
+        ? exUser.communityNickname
+        : null;
+
+      basicInfo.id = exUser.id;
+      basicInfo.finishTutorial = exUser.finishTutorial;
       await User.update(
         {
           ...basicInfo,
@@ -35,11 +41,6 @@ exports.jwtCreate = async (profile) => {
           where: { snsId },
         }
       );
-      basicInfo.communityNickname = exUser.communityNickname
-        ? exUser.communityNickname
-        : null;
-      basicInfo.id = exUser.id;
-      basicInfo.finishTutorial = exUser.finishTutorial;
     } else {
       const user = await User.create({
         ...basicInfo,
