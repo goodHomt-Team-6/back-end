@@ -1,9 +1,13 @@
 const Sequelize = require('sequelize');
-const { sequelize } = require('../models');
-const User = require('../models/user');
-const Community = require('../models/community');
-const Community_Exercise = require('../models/community_exercise');
-const Community_Set = require('../models/community_set');
+const {
+  sequelize,
+  Category,
+  Default_Exercise,
+  User,
+  Community,
+  Community_Exercise,
+  Community_Set,
+} = require('../models');
 
 //전체 커뮤니티
 const allCommunities = async (req, res) => {
@@ -66,16 +70,20 @@ const allCommunities = async (req, res) => {
           model: Community_Exercise,
           attributes: ['exerciseName'],
           as: 'myExercise',
-          // include: [
-          //   {
-          //     model: Community_Set,
-          //     as: 'set',
-          //   },
-          // ],
+          include: [
+            {
+              model: Category,
+              attributes: ['id', 'categoryName'],
+            },
+          ],
         },
       ],
       order: [['createdAt', 'DESC']],
     });
+
+    // await Category.findAll({
+    //   where: Sequelize.literal(`Community.id IN (${exerciseIds.join(',')})`),
+    // });
 
     res.status(200).send({ message: 'success', result });
   } catch (error) {
@@ -133,9 +141,11 @@ const communityEnroll = async (req, res) => {
   try {
     const { routineName, myExercise, description, routineTime, isBookmarked } =
       req.body;
-    const userId = req.userInfo.id;
+
+    const userId = req.userId;
     const communityNickname =
       req.body.communityNickname || req.userInfo?.communityNickname;
+
     if (!userId) {
       res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
       return;
@@ -151,9 +161,22 @@ const communityEnroll = async (req, res) => {
       });
       for (let i = 0; i < myExercise.length; i++) {
         const { exerciseName, set } = myExercise[i];
+
+        const category = await Category.findOne({
+          attributes: ['id'],
+          include: [
+            {
+              model: Default_Exercise,
+              as: 'exerciseList',
+              where: { exerciseName },
+            },
+          ],
+        });
+
         const communityExercise = await Community_Exercise.create({
           communityId: community.id,
           exerciseName,
+          categoryId: category.id,
         });
         for (let i = 0; i < set.length; i++) {
           const inputSet = set[i];

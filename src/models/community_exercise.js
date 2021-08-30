@@ -33,5 +33,10 @@ module.exports = class Community_Exercise extends Sequelize.Model {
       as: 'myExercise',
       onDelete: 'CASCADE',
     });
+
+    db.Community_Exercise.belongsTo(db.Category, {
+      foreignKey: 'categoryId',
+      sourceKey: 'id',
+    });
   }
 };

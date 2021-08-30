@@ -33,5 +33,9 @@ module.exports = class Category extends Sequelize.Model {
       sourceKey: 'id',
       as: 'exerciseList',
     });
+    db.Category.hasMany(db.Community_Exercise, {
+      foreignKey: 'categoryId',
+      sourceKey: 'id',
+    });
   }
 };
