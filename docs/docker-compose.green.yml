@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  node_health:
+    image: health-image
+    container_name: green
+    environment:
+      - COOKIE_SECRET=
+      - DB_USERNAME=
+      - DB_PASSWORD=
+      - DB_NAME=
+      - DB_HOST=
+      - JWT_SECRET=
+      - ACCESSTOKEN_EXPIRE=
+      - REFRESHTOKEN_EXPIRE=
+    volumes:
+      - /home/ubuntu/deploy/node_health:/deploy/node_health
+    ports:
+      - "8002:8005"
+

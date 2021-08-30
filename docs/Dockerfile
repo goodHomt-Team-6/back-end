@@ -7,3 +7,4 @@ RUN ln -s /usr/local/bin/start-server.sh /start-server.sh
 
 
 CMD ["start-server.sh"]
+
