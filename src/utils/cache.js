@@ -1,7 +1,6 @@
 const redis = require('redis');
 
 const redistHost = '13.124.152.4';
-console.log(redistHost);
 const redisClient = redis.createClient(6379, redistHost);
 const DEFAULT_EXPIRATION = 3600;
 
@@ -13,6 +12,15 @@ exports.getOrSetCache = (key, cb) => {
       const freshData = await cb();
       redisClient.setex(key, DEFAULT_EXPIRATION, JSON.stringify(freshData));
       resolve(freshData);
+    });
+  });
+};
+
+exports.deleteCacheById = (key) => {
+  return new Promise((resv, reject) => {
+    redisClient.del(key, (error, reply) => {
+      if (error) return reject(error);
+      resv(1);
     });
   });
 };
