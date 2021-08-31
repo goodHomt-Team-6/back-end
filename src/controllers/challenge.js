@@ -7,19 +7,23 @@ const User = require('../models/user');
 const { find, getDeadLineYn } = require('../utils/challenge');
 const { startSchedule } = require('../utils/schedule');
 const { sequelize } = require('../models');
+const { getOrSetCache, deleteCacheById } = require('../utils/cache');
 //전체 챌린지
 exports.allChallenge = async (req, res) => {
   try {
-    const result = await Challenge.findAll(
-      find({
-        challengeDateTime: {
-          [Op.gt]: sequelize.literal(
-            `(SELECT date_format(NOW(), '%Y%m%d%H%i'))`
-          ),
-        },
-      })
-    );
-    // const result = await allSearch();
+    const result = await getOrSetCache('allChallenge', async () => {
+      const challenges = await Challenge.findAll(
+        find({
+          challengeDateTime: {
+            [Op.gt]: sequelize.literal(
+              `(SELECT date_format(NOW(), '%Y%m%d%H%i'))`
+            ),
+          },
+        })
+      );
+      return challenges;
+    });
+
     res.status(200).json({ ok: true, result });
   } catch (error) {
     console.error(error);
@@ -30,14 +34,14 @@ exports.allChallenge = async (req, res) => {
 exports.challengeForUserBeforeJoin = async (req, res) => {
   const userId = req.userId;
   const query = req.query;
-  console.log('userId!!!', userId);
 
-  //메인에서 챌린지가져올 떄 쓸 조건 => 메인 api 작성후 적용
-  //운동시작시간 > 현재시간 - 런닝시간
   let where;
   let isCompleted;
   if (query.type === 'all') {
     isCompleted = true;
+
+    //메인화면에서 챌린지가져올 떄 쓸 조건.
+    //운동시작시간 > 현재시간 - 런닝시간
   } else {
     isCompleted = false;
     where = {
@@ -49,24 +53,31 @@ exports.challengeForUserBeforeJoin = async (req, res) => {
     };
   }
   try {
-    const result = await Challenge_User.findAll({
-      where: {
-        [Op.and]: { userId, isCompleted },
-      },
-      include: {
-        model: Challenge,
-        as: 'Challenge',
-        attributes: [
-          'challengeName',
-          'challengeIntroduce',
-          'challengeDateTime',
-          'communityNickname',
-          'progressStatus',
-        ],
-        where,
-      },
-      order: [[Challenge, 'challengeDateTime', 'ASC']],
-    });
+    const result = await getOrSetCache(
+      `challengeForUser-${query.type}-${userId}`,
+      async () => {
+        const challengeUsers = await Challenge_User.findAll({
+          where: {
+            [Op.and]: { userId, isCompleted },
+          },
+          include: {
+            model: Challenge,
+            as: 'Challenge',
+            attributes: [
+              'challengeName',
+              'challengeIntroduce',
+              'challengeDateTime',
+              'communityNickname',
+              'progressStatus',
+            ],
+            where,
+          },
+          order: [[Challenge, 'challengeDateTime', 'ASC']],
+        });
+        return challengeUsers;
+      }
+    );
+
     res.json({ ok: true, result });
   } catch (error) {
     console.error(error);
@@ -104,7 +115,16 @@ exports.challengeForUserAfterJoin = async (req, res) => {
 exports.getChallengeDetail = async (req, res) => {
   const { challengeId } = req.params;
   try {
-    const challenge = await Challenge.findOne(find({ id: challengeId }));
+    const challenge = await getOrSetCache(
+      `getChallengeDetail-${challengeId}`,
+      async () => {
+        const cachingChallenge = await Challenge.findOne(
+          find({ id: challengeId })
+        );
+        return cachingChallenge;
+      }
+    );
+
     res.status(200).json({ ok: true, result: { challenge } });
   } catch (error) {
     console.error('error!@#!@#', error);
@@ -167,7 +187,6 @@ exports.makeChallenge = async (req, res) => {
 
     const scheduleChallenge = await Challenge.findByPk(challenge.id);
     const endDateTime = scheduleChallenge.endDateTime;
-    console.log('endTime123', endDateTime);
 
     startSchedule(challengeDateTime, endDateTime, challenge.id);
     res.status(200).send({ ok: true });
@@ -181,7 +200,7 @@ exports.makeChallenge = async (req, res) => {
 exports.makeRecord = async (req, res) => {
   const userId = req.userId;
   const { id, challengeTime, rating } = req.body;
-  console.log('id!!!!!!', id, challengeTime, rating);
+
   try {
     const user = await User.findByPk(userId);
     await User.update(
@@ -238,6 +257,9 @@ exports.joinChallenge = async (req, res) => {
       challengeId,
       userId,
     });
+
+    await deleteCacheById(`challengeForUser-undefined-${userId}`);
+    await deleteCacheById(`challengeForUser-all-${userId}`);
     res.json({ ok: true });
   } catch (error) {
     console.error(error);
@@ -260,6 +282,8 @@ exports.cancelChallenge = async (req, res) => {
         [Op.and]: [{ challengeId }, { userId }],
       },
     });
+    await deleteCacheById(`challengeForUser-undefined-${userId}`);
+    await deleteCacheById(`challengeForUser-all-${userId}`);
     res.json({ ok: true });
   } catch (error) {
     console.error(error);
