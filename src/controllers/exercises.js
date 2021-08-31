@@ -23,20 +23,24 @@ const allExercises = async (req, res) => {
 const exerciseForCategory = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
-
-    const result = await Category.findAll({
-      attributes: ['id', 'categoryName'],
-      where: {
-        id: categoryId,
-      },
-      include: [
-        {
-          model: Default_Exercise,
-          as: 'exerciseList',
-        },
-      ],
-    });
-
+    const result = await getOrSetCache(
+      `exerciseForCategory-${categoryId}`,
+      async () => {
+        const exercisesForCateory = await Category.findAll({
+          attributes: ['id', 'categoryName'],
+          where: {
+            id: categoryId,
+          },
+          include: [
+            {
+              model: Default_Exercise,
+              as: 'exerciseList',
+            },
+          ],
+        });
+        return exercisesForCateory;
+      }
+    );
     res.json({ ok: true, result });
   } catch (error) {
     console.error(error);
