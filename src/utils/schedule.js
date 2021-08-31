@@ -1,5 +1,7 @@
 const Challenge = require('../models/challenge');
+const Challenge_User = require('../models/challenge_user');
 const CronJob = require('cron').CronJob;
+const { deleteCacheById } = require('../utils/cache');
 
 const startSchedule = async (dateTime, endDateTime, challengeId) => {
   if (dateTime.length === 12) {
@@ -8,29 +10,12 @@ const startSchedule = async (dateTime, endDateTime, challengeId) => {
     const minute = dateTime.substr(10);
     const scheduleTime = `${minute} ${hour} ${date} * *`;
 
-    const end = () => {
-      const date = endDateTime.substr(6, 2);
-      const hour = endDateTime.substr(8, 2);
-      const minute = endDateTime.substr(10);
-      const endScheduleDateTime = `${minute} ${hour} ${date} * *`;
-
-      const endJob = new CronJob(
-        endScheduleDateTime,
-        async function () {
-          await Challenge.update(
-            { progressStatus: 'end' },
-            {
-              where: { id: challengeId },
-            }
-          );
-          endJob.stop();
-        },
-        null,
-        true,
-        'Asia/Seoul'
-      );
+    //챌린지 종료시간 셋팅
+    const end = async () => {
+      await endSchedule(endDateTime, challengeId);
     };
 
+    //챌린지 시작 스케쥴 셋팅
     const job = new CronJob(
       scheduleTime,
       async function () {
@@ -40,6 +25,7 @@ const startSchedule = async (dateTime, endDateTime, challengeId) => {
             where: { id: challengeId },
           }
         );
+        await initChallengeCach(challengeId);
         job.stop();
       },
       end,
@@ -65,6 +51,7 @@ const endSchedule = async (endDateTime, challengeId) => {
           where: { id: challengeId },
         }
       );
+      await initChallengeCach(challengeId);
       endJob.stop();
     },
     null,
@@ -99,5 +86,20 @@ const schedule = async () => {
     console.error(error);
   }
 };
+
+async function initChallengeCach(challengeId) {
+  const challengeUsers = await Challenge_User.findAll({
+    attributes: ['userId'],
+    where: { challengeId },
+  });
+
+  await deleteCacheById(`allChallenge`);
+
+  for (let i = 0; i < challengeUsers.length; i++) {
+    const { userId } = challengeUsers[i];
+    await deleteCacheById(`challengeForUser-undefined-${userId}`);
+    await deleteCacheById(`challengeForUser-all-${userId}`);
+  }
+}
 
 module.exports = { startSchedule, endSchedule, schedule };
