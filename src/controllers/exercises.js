@@ -1,13 +1,17 @@
 const Category = require('../models/category');
 const Default_Exercise = require('../models/default_exercise');
-//전체조회
-const allExercies = async (req, res) => {
-  try {
-    const result = await Default_Exercise.findAll({
-      attributes: ['id', 'exerciseName'],
-      order: [['createdAt', 'DESC']],
-    });
 
+const { getOrSetCache } = require('../utils/cache');
+//전체조회
+const allExercises = async (req, res) => {
+  try {
+    const result = await getOrSetCache('allExercises', async () => {
+      const exercises = await Default_Exercise.findAll({
+        attributes: ['id', 'exerciseName'],
+        order: [['createdAt', 'DESC']],
+      });
+      return exercises;
+    });
     res.json({ ok: true, result });
   } catch (error) {
     console.error(error);
@@ -41,6 +45,6 @@ const exerciseForCategory = async (req, res) => {
 };
 
 module.exports = {
-  allExercies,
+  allExercises,
   exerciseForCategory,
 };
