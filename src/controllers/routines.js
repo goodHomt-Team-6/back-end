@@ -3,22 +3,27 @@ const { Op } = require('sequelize');
 const Routine = require('../models/routine');
 const Routine_Exercise = require('../models/routine_exercise');
 const Set = require('../models/set');
-
+const { getOrSetCache, deleteCacheById } = require('../utils/cache');
+const moment = require('moment');
 //루틴 가져오기
 const allRoutine = async (req, res) => {
   const userId = req.userId;
   const params = req.query;
   let where;
   let limit;
+  let caching;
   if (params.sorting) {
     if (params.sorting === 'bookmark') {
+      caching = 'bookmark';
       where = { isBookmarked: true };
     } else {
+      caching = params.sorting;
       where = Sequelize.literal(
         `Routine.createdAt > DATE_FORMAT(date_add(NOW(), INTERVAL - 1 ${params.sorting}), '%Y%m%d')`
       );
     }
   } else if (params.date) {
+    caching = params.date;
     where = Sequelize.literal(
       `DATE_FORMAT(Routine.createdAt, '%Y%m%d') = ${params.date}`
     );
@@ -27,38 +32,44 @@ const allRoutine = async (req, res) => {
     where = {};
   }
   try {
-    const result = await Routine.findAll({
-      where: {
-        [Op.and]: [{ userId }, where],
-      },
-      attributes: [
-        'id',
-        'routineName',
-        'isBookmarked',
-        'isCompleted',
-        'routineTime',
-        'rating',
-        'createdAt',
-      ],
-      include: [
-        {
-          model: Routine_Exercise,
-          attributes: ['id', 'exerciseName'],
-          as: 'myExercise',
+    const result = await getOrSetCache(
+      `allRoutine-${userId}-${caching}`,
+      async () => {
+        const routines = await Routine.findAll({
+          where: {
+            [Op.and]: [{ userId }, where],
+          },
+          attributes: [
+            'id',
+            'routineName',
+            'isBookmarked',
+            'isCompleted',
+            'routineTime',
+            'rating',
+            'createdAt',
+          ],
           include: [
             {
-              model: Set,
-              as: 'set',
+              model: Routine_Exercise,
+              attributes: ['id', 'exerciseName'],
+              as: 'myExercise',
+              include: [
+                {
+                  model: Set,
+                  as: 'set',
+                },
+              ],
             },
           ],
-        },
-      ],
-      order: [
-        ['createdAt', 'DESC'],
-        ['myExercise', 'order', 'ASC'],
-      ],
-      limit,
-    });
+          order: [
+            ['createdAt', 'DESC'],
+            ['myExercise', 'order', 'ASC'],
+          ],
+          limit,
+        });
+        return routines;
+      }
+    );
     res.json({ ok: true, result });
   } catch (error) {
     console.error(error);
@@ -71,46 +82,52 @@ const routineDetail = async (req, res) => {
   const userId = req.userId;
   const id = req.params;
   try {
-    const result = await Routine.findAll({
-      attributes: [
-        'id',
-        'routineName',
-        'routineTime',
-        'rating',
-        'isBookmarked',
-        'isCompleted',
-        'createdAt',
-      ],
-      where: {
-        [Op.and]: [{ userId }, id],
-      },
-      include: [
-        {
-          model: Routine_Exercise,
-          attributes: ['id', 'exerciseName'],
-          as: 'myExercise',
+    const result = await getOrSetCache(
+      `routineDetail-${userId}-${id.id}`,
+      async () => {
+        const routine = await Routine.findAll({
+          attributes: [
+            'id',
+            'routineName',
+            'routineTime',
+            'rating',
+            'isBookmarked',
+            'isCompleted',
+            'createdAt',
+          ],
+          where: {
+            [Op.and]: [{ userId }, id],
+          },
           include: [
             {
-              model: Set,
-              as: 'set',
-              attributes: [
-                'id',
-                'setCount',
-                'weight',
-                'count',
-                'minutes',
-                'seconds',
-                'type',
-                'order',
+              model: Routine_Exercise,
+              attributes: ['id', 'exerciseName'],
+              as: 'myExercise',
+              include: [
+                {
+                  model: Set,
+                  as: 'set',
+                  attributes: [
+                    'id',
+                    'setCount',
+                    'weight',
+                    'count',
+                    'minutes',
+                    'seconds',
+                    'type',
+                    'order',
+                  ],
+                },
               ],
             },
           ],
-        },
-      ],
-      order: Sequelize.literal(
-        'myExercise.order ASC, `myExercise->set`.order ASC'
-      ),
-    });
+          order: Sequelize.literal(
+            'myExercise.order ASC, `myExercise->set`.order ASC'
+          ),
+        });
+        return routine;
+      }
+    );
     res.json({ ok: true, result });
   } catch (error) {
     console.error(error);
@@ -169,6 +186,9 @@ const routineEnroll = async (req, res) => {
         }
       }
     }
+
+    //루틴 캐시 초기화
+    initRoutineCaching(userId);
     res.status(200).send({ ok: true });
   } catch (error) {
     console.error(error);
@@ -186,7 +206,7 @@ const routineBookmark = async (req, res) => {
       return res.json({ ok: false, message: '수정할 권한이 없습니다' });
     }
 
-    const result = await Routine.update(
+    await Routine.update(
       {
         isBookmarked,
         routineName,
@@ -195,7 +215,8 @@ const routineBookmark = async (req, res) => {
         where: { id },
       }
     );
-    console.log(result);
+
+    await deleteCacheById(`allRoutine-${userId}-bookmark`);
     res.json({ ok: true, routineId: id, routineName });
   } catch (error) {
     console.error(error);
@@ -223,6 +244,7 @@ const routineRecord = async (req, res) => {
         where: { id },
       }
     );
+    await deleteCacheById(`routineDetail-${userId}-${id}`);
     res.json({ ok: true });
   } catch (error) {
     console.error(error);
@@ -278,6 +300,7 @@ const routineUpdate = async (req, res, next) => {
       }
     }
 
+    initRoutineCaching(userId);
     res.status(200).send({ ok: true });
   } catch (error) {
     console.error(error);
@@ -302,12 +325,23 @@ const routineDelete = async (req, res) => {
     await Routine.destroy({
       where: { id: routineId },
     });
+
+    initRoutineCaching(userId);
     res.json({ ok: true });
   } catch (error) {
     console.error(error);
     res.status(500).send({ errorMessage: error });
   }
 };
+
+async function initRoutineCaching(userId) {
+  const date = moment().format('YYYYMMDD');
+  await deleteCacheById(`allRoutine-${userId}-bookmark`);
+  await deleteCacheById(`allRoutine-${userId}-day`);
+  await deleteCacheById(`allRoutine-${userId}-week`);
+  await deleteCacheById(`allRoutine-${userId}-month`);
+  await deleteCacheById(`allRoutine-${userId}-${date}`);
+}
 
 module.exports = {
   allRoutine,
