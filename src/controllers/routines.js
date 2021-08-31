@@ -1,10 +1,14 @@
 const Sequelize = require('sequelize');
 const { Op } = require('sequelize');
+const moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault('Asia/Seoul');
+
 const Routine = require('../models/routine');
 const Routine_Exercise = require('../models/routine_exercise');
 const Set = require('../models/set');
 const { getOrSetCache, deleteCacheById } = require('../utils/cache');
-const moment = require('moment');
+
 //루틴 가져오기
 const allRoutine = async (req, res) => {
   const userId = req.userId;
@@ -336,6 +340,7 @@ const routineDelete = async (req, res) => {
 
 async function initRoutineCaching(userId) {
   const date = moment().format('YYYYMMDD');
+  console.log('date!!!!!!!!!', date);
   await deleteCacheById(`allRoutine-${userId}-bookmark`);
   await deleteCacheById(`allRoutine-${userId}-day`);
   await deleteCacheById(`allRoutine-${userId}-week`);
