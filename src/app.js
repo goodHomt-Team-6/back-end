@@ -1,10 +1,8 @@
 const express = require('express');
-const session = require('express-session');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const nunjucks = require('nunjucks');
-const path = require('path');
 const cors = require('cors');
 
 const logger = require('./logger');
@@ -21,7 +19,6 @@ const routineRouter = require('./routes/routine');
 const communityRouter = require('./routes/community');
 const challengeRouter = require('./routes/challenge');
 const likeRouter = require('./routes/like');
-// const commentRouter = require('./routes/comment');
 
 dotenv.config();
 
@@ -66,22 +63,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }), router);
 
 app.use(cookieParser(process.env.COOKIE_SECRET));
-// const sessionOption = {
-//   resave: false,
-//   saveUninitialized: false,
-//   secret: process.env.COOKIE_SECRET,
-//   cookie: {
-//     httpOnly: true,
-//     secure: false,
-//   },
-//   name: 'session-cookie',
-// };
-// //https 적용할때만
-// if (process.env.NODE_ENV === 'production') {
-//   sessionOption.proxy = true;
-//   sessionOption.cookie.secure = true;
-// }
-// app.use(session(sessionOption));
 
 app.use(cors({ origin: '*', credentials: true }));
 
@@ -106,8 +87,6 @@ app.use('/community', communityRouter);
 app.use('/challenges', challengeRouter);
 
 app.use('/like', likeRouter);
-
-// app.use('/comment', commentRouter);
 
 //error router
 app.use((req, res, next) => {

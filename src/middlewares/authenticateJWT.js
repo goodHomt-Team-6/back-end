@@ -6,14 +6,8 @@ exports.authenticateJWT = async (req, res, next) => {
   try {
     const [accessToken, refreshToken] = req.headers['authorization'].split(',');
 
-    console.log('accessToken!!!', accessToken);
-    console.log('refreshToken!!!', refreshToken);
-
     const iAccessToken = verifyToken(accessToken);
     const irefreshToken = verifyToken(refreshToken);
-
-    console.log('message1', iAccessToken);
-    console.log('message2', irefreshToken);
 
     //유효하지 않는 토큰:signature가 맞지 않음
     if (

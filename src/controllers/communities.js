@@ -81,10 +81,6 @@ const allCommunities = async (req, res) => {
       order: [['createdAt', 'DESC']],
     });
 
-    // await Category.findAll({
-    //   where: Sequelize.literal(`Community.id IN (${exerciseIds.join(',')})`),
-    // });
-
     res.status(200).send({ message: 'success', result });
   } catch (error) {
     console.error(error);
@@ -98,19 +94,6 @@ const communityDetail = async (req, res) => {
   try {
     const result = await Community.findOne({
       where: { id: routineId },
-      // attributes: {
-      //   include: [
-      //     [
-      //       sequelize.literal(`(
-      //               SELECT COUNT(userId)
-      //                 FROM like_user AS like_user
-      //                WHERE
-      //                   like_user.communityId = community.id
-      //           )`),
-      //       'totalLike',
-      //     ],
-      //   ],
-      // },
       include: [
         {
           model: User,
