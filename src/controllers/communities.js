@@ -8,78 +8,90 @@ const {
   Community_Exercise,
   Community_Set,
 } = require('../models');
+const { getOrSetCache, deleteCacheById } = require('../utils/cache');
 
 //전체 커뮤니티
 const allCommunities = async (req, res) => {
   try {
     const { userId, exerciseName } = req.query;
-
     let where;
     if (exerciseName) {
-      const exercise = await Community.findAll({
-        attributes: ['id'],
-        include: [
-          {
-            model: Community_Exercise,
+      const cachingWhere = await getOrSetCache(
+        `communiy-${exerciseName}`,
+        async () => {
+          const exercise = await Community.findAll({
             attributes: ['id'],
-            as: 'myExercise',
-            where: Sequelize.literal(
-              `myExercise.exerciseName LIKE '%${exerciseName}%'`
-            ),
-          },
-        ],
-      });
-      const exerciseIds = [];
-      for (let i = 0; i < exercise.length; i++) {
-        exerciseIds.push(exercise[i].id);
-      }
-      where = Sequelize.literal(`Community.id IN (${exerciseIds.join(',')})`);
+            include: [
+              {
+                model: Community_Exercise,
+                attributes: ['id'],
+                as: 'myExercise',
+                where: Sequelize.literal(
+                  `myExercise.exerciseName LIKE '%${exerciseName}%'`
+                ),
+              },
+            ],
+          });
+          const exerciseIds = [];
+          for (let i = 0; i < exercise.length; i++) {
+            exerciseIds.push(exercise[i].id);
+          }
+          return `Community.id IN (${exerciseIds.join(',')})`;
+        }
+      );
+      where = cachingWhere;
     } else {
-      where = {};
+      where = '';
     }
-    const result = await Community.findAll({
-      attributes: {
-        include: [
-          [
-            sequelize.literal(`(
+    const result = await getOrSetCache(
+      `allCommunity-${userId}-${exerciseName}`,
+      async () => {
+        const communities = await Community.findAll({
+          attributes: {
+            include: [
+              [
+                sequelize.literal(`(
                     SELECT COUNT(userId)
                       FROM like_user AS like_user
                      WHERE
                         like_user.communityId = Community.id
                 )`),
-            'totalLike',
-          ],
-          [
-            sequelize.literal(`(
+                'totalLike',
+              ],
+              [
+                sequelize.literal(`(
                     SELECT IF( COUNT(userId) > 0, true, false) as isLiked
                       FROM like_user AS like_user
                      WHERE
                         like_user.communityId = Community.id and like_user.userId = ${userId}
                 )`),
-            'isLiked',
-          ],
-        ],
-      },
-      where,
-      include: [
-        {
-          model: User,
-          attributes: ['img'],
-        },
-        {
-          model: Community_Exercise,
-          attributes: ['exerciseName'],
-          as: 'myExercise',
+                'isLiked',
+              ],
+            ],
+          },
+          where: Sequelize.literal(where),
           include: [
             {
-              model: Category,
-              attributes: ['id', 'categoryName'],
+              model: User,
+              attributes: ['img'],
+            },
+            {
+              model: Community_Exercise,
+              attributes: ['exerciseName'],
+              as: 'myExercise',
+              include: [
+                {
+                  model: Category,
+                  attributes: ['id', 'categoryName'],
+                },
+              ],
             },
           ],
-        },
-      ],
-      order: [['createdAt', 'DESC']],
-    });
+          order: [['createdAt', 'DESC']],
+        });
+        return communities;
+      }
+    );
 
     res.status(200).send({ message: 'success', result });
   } catch (error) {
@@ -92,25 +104,31 @@ const allCommunities = async (req, res) => {
 const communityDetail = async (req, res) => {
   const routineId = req.params.routineId;
   try {
-    const result = await Community.findOne({
-      where: { id: routineId },
-      include: [
-        {
-          model: User,
-          attributes: ['img'],
-        },
-        {
-          model: Community_Exercise,
-          as: 'myExercise',
+    const result = await getOrSetCache(
+      `communityDetail-${routineId}`,
+      async () => {
+        const community = await Community.findOne({
+          where: { id: routineId },
           include: [
             {
-              model: Community_Set,
-              as: 'set',
+              model: User,
+              attributes: ['img'],
+            },
+            {
+              model: Community_Exercise,
+              as: 'myExercise',
+              include: [
+                {
+                  model: Community_Set,
+                  as: 'set',
+                },
+              ],
             },
           ],
-        },
-      ],
-    });
+        });
+        return community;
+      }
+    );
     res.status(200).send({ message: 'success', result });
   } catch (error) {
     console.error(error);
@@ -129,10 +147,6 @@ const communityEnroll = async (req, res) => {
     const communityNickname =
       req.body.communityNickname || req.userInfo?.communityNickname;
 
-    if (!userId) {
-      res.status(500).json({ errorMessage: '사용자가 아닙니다.' });
-      return;
-    }
     if (userId) {
       const community = await Community.create({
         userId,
@@ -145,17 +159,25 @@ const communityEnroll = async (req, res) => {
       for (let i = 0; i < myExercise.length; i++) {
         const { exerciseName, set } = myExercise[i];
 
-        const category = await Category.findOne({
-          attributes: ['id'],
-          include: [
-            {
-              model: Default_Exercise,
-              as: 'exerciseList',
-              where: { exerciseName },
-            },
-          ],
-        });
+        await deleteCacheById(`allCommunity-${userId}-${exerciseName}`);
+        await deleteCacheById(`allCommunity-${userId}-undefined`);
 
+        const category = await getOrSetCache(
+          `categoryForExercise-${exerciseName}`,
+          async () => {
+            const cachingCategory = await Category.findOne({
+              attributes: ['id'],
+              include: [
+                {
+                  model: Default_Exercise,
+                  as: 'exerciseList',
+                  where: { exerciseName },
+                },
+              ],
+            });
+            return cachingCategory;
+          }
+        );
         const communityExercise = await Community_Exercise.create({
           communityId: community.id,
           exerciseName,
@@ -195,11 +217,22 @@ const communityEnroll = async (req, res) => {
 
 const communityDelete = async (req, res) => {
   try {
-    const userId = req.userInfo.id;
+    const userId = req.userId;
     const communityId = req.params.routineId;
     const community = await Community.findOne({
       where: { id: communityId },
     });
+    const exercise = await Community_Exercise.findAll({
+      attributes: ['exerciseName'],
+      where: { communityId },
+    });
+
+    for (let i = 0; i < exercise.length; i++) {
+      const { exerciseName } = exercise[i];
+      await deleteCacheById(`allCommunity-${userId}-${exerciseName}`);
+    }
+    await deleteCacheById(`allCommunity-${userId}-undefined`);
+    await deleteCacheById(`communityDetail-${communityId}`);
 
     if (+userId !== community.userId) {
       res.status(500).json({ errorMessage: '사용자가 일치하지 않습니다.' });
