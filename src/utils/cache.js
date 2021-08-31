@@ -17,10 +17,10 @@ exports.getOrSetCache = (key, cb) => {
 };
 
 exports.deleteCacheById = (key) => {
-  return new Promise((resv, reject) => {
+  return new Promise((resolve, reject) => {
     redisClient.del(key, (error, reply) => {
       if (error) return reject(error);
-      resv(1);
+      resolve(1);
     });
   });
 };
