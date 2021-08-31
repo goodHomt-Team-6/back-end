@@ -249,6 +249,7 @@ const routineRecord = async (req, res) => {
       }
     );
     await deleteCacheById(`routineDetail-${userId}-${id}`);
+    initRoutineCaching(userId);
     res.json({ ok: true });
   } catch (error) {
     console.error(error);
@@ -340,7 +341,6 @@ const routineDelete = async (req, res) => {
 
 async function initRoutineCaching(userId) {
   const date = moment().format('YYYYMMDD');
-  console.log('date!!!!!!!!!', date);
   await deleteCacheById(`allRoutine-${userId}-bookmark`);
   await deleteCacheById(`allRoutine-${userId}-day`);
   await deleteCacheById(`allRoutine-${userId}-week`);
