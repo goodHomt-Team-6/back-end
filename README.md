@@ -35,7 +35,7 @@
 ![](https://user-images.githubusercontent.com/47413926/131307950-2b43afbd-6c33-4b9f-8f7a-8a80b54affd3.png)
 
 ## 4. 아키텍쳐
-![](https://user-images.githubusercontent.com/47413926/131622783-3be02776-a8b8-4a73-bd10-9e85e310772b.png)
+![](https://user-images.githubusercontent.com/47413926/131681506-76a4aae1-af04-4692-b7e3-00f1049b40dc.png)
 
 ## 5. 핵심 기능
 이 서비스의 핵심 기능은 매일 운동을 하고 기록하는 기능입니다.  
