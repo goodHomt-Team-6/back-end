@@ -220,7 +220,7 @@ const routineBookmark = async (req, res) => {
       }
     );
 
-    await deleteCacheById(`allRoutine-${userId}-bookmark`);
+    initRoutineCaching(userId);
     res.json({ ok: true, routineId: id, routineName });
   } catch (error) {
     console.error(error);
@@ -305,6 +305,7 @@ const routineUpdate = async (req, res, next) => {
       }
     }
 
+    await deleteCacheById(`routineDetail-${userId}-${routineId}`);
     initRoutineCaching(userId);
     res.status(200).send({ ok: true });
   } catch (error) {
