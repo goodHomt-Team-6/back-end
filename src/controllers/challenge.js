@@ -7,23 +7,19 @@ const User = require('../models/user');
 const { find, getDeadLineYn } = require('../utils/challenge');
 const { startSchedule } = require('../utils/schedule');
 const { sequelize } = require('../models');
-const { getOrSetCache, deleteCacheById } = require('../utils/cache');
+
 //전체 챌린지
 exports.allChallenge = async (req, res) => {
   try {
-    const result = await getOrSetCache('allChallenge', async () => {
-      const challenges = await Challenge.findAll(
-        find({
-          challengeDateTime: {
-            [Op.gt]: sequelize.literal(
-              `(SELECT date_format(NOW(), '%Y%m%d%H%i'))`
-            ),
-          },
-        })
-      );
-      return challenges;
-    });
-
+    const result = await Challenge.findAll(
+      find({
+        challengeDateTime: {
+          [Op.gt]: sequelize.literal(
+            `(SELECT date_format(NOW(), '%Y%m%d%H%i'))`
+          ),
+        },
+      })
+    );
     res.status(200).json({ ok: true, result });
   } catch (error) {
     console.error(error);
@@ -53,30 +49,24 @@ exports.challengeForUserBeforeJoin = async (req, res) => {
     };
   }
   try {
-    const result = await getOrSetCache(
-      `challengeForUser-${query.type}-${userId}`,
-      async () => {
-        const challengeUsers = await Challenge_User.findAll({
-          where: {
-            [Op.and]: { userId, isCompleted },
-          },
-          include: {
-            model: Challenge,
-            as: 'Challenge',
-            attributes: [
-              'challengeName',
-              'challengeIntroduce',
-              'challengeDateTime',
-              'communityNickname',
-              'progressStatus',
-            ],
-            where,
-          },
-          order: [[Challenge, 'challengeDateTime', 'ASC']],
-        });
-        return challengeUsers;
-      }
-    );
+    const result = await Challenge_User.findAll({
+      where: {
+        [Op.and]: { userId, isCompleted },
+      },
+      include: {
+        model: Challenge,
+        as: 'Challenge',
+        attributes: [
+          'challengeName',
+          'challengeIntroduce',
+          'challengeDateTime',
+          'communityNickname',
+          'progressStatus',
+        ],
+        where,
+      },
+      order: [[Challenge, 'challengeDateTime', 'ASC']],
+    });
 
     res.json({ ok: true, result });
   } catch (error) {
@@ -115,17 +105,9 @@ exports.challengeForUserAfterJoin = async (req, res) => {
 exports.getChallengeDetail = async (req, res) => {
   const { challengeId } = req.params;
   try {
-    const challenge = await getOrSetCache(
-      `getChallengeDetail-${challengeId}`,
-      async () => {
-        const cachingChallenge = await Challenge.findOne(
-          find({ id: challengeId })
-        );
-        return cachingChallenge;
-      }
-    );
+    const result = await Challenge.findOne(find({ id: challengeId }));
 
-    res.status(200).json({ ok: true, result: { challenge } });
+    res.status(200).json({ ok: true, result });
   } catch (error) {
     console.error('error!@#!@#', error);
     res.status(500).json(error);
@@ -189,6 +171,7 @@ exports.makeChallenge = async (req, res) => {
     const endDateTime = scheduleChallenge.endDateTime;
 
     startSchedule(challengeDateTime, endDateTime, challenge.id);
+
     res.status(200).send({ ok: true });
   } catch (error) {
     console.error(error);
@@ -258,8 +241,6 @@ exports.joinChallenge = async (req, res) => {
       userId,
     });
 
-    await deleteCacheById(`challengeForUser-undefined-${userId}`);
-    await deleteCacheById(`challengeForUser-all-${userId}`);
     res.json({ ok: true });
   } catch (error) {
     console.error(error);
@@ -282,8 +263,6 @@ exports.cancelChallenge = async (req, res) => {
         [Op.and]: [{ challengeId }, { userId }],
       },
     });
-    await deleteCacheById(`challengeForUser-undefined-${userId}`);
-    await deleteCacheById(`challengeForUser-all-${userId}`);
     res.json({ ok: true });
   } catch (error) {
     console.error(error);
