@@ -105,9 +105,9 @@ exports.challengeForUserAfterJoin = async (req, res) => {
 exports.getChallengeDetail = async (req, res) => {
   const { challengeId } = req.params;
   try {
-    const result = await Challenge.findOne(find({ id: challengeId }));
+    const challenge = await Challenge.findOne(find({ id: challengeId }));
 
-    res.status(200).json({ ok: true, result });
+    res.status(200).json({ ok: true, result: { challenge } });
   } catch (error) {
     console.error('error!@#!@#', error);
     res.status(500).json(error);
