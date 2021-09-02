@@ -16,6 +16,8 @@ const allRoutine = async (req, res) => {
   let where;
   let limit;
   let caching;
+
+  //params에는 sorting: (bookmark, day, week, month), date가 들어 올 수 있다.
   if (params.sorting) {
     if (params.sorting === 'bookmark') {
       caching = 'bookmark';
@@ -149,12 +151,15 @@ const routineEnroll = async (req, res) => {
     }`;
 
     if (myExercise) {
+      // 해당 사용자의  해당날짜의 기존 루틴을 조회한다.
       const existRoutine = await Routine.findAll({
         attributes: ['id'],
         where: Sequelize.literal(
           `Routine.userId=${userId} and  DATE_FORMAT(Routine.createdAt, '%Y%m%d') = ${date}`
         ),
       });
+
+      //기존루틴이 있다면 삭제를 한다.
       if (existRoutine.length > 0) {
         await Routine.destroy({
           where: Sequelize.literal(
@@ -162,6 +167,8 @@ const routineEnroll = async (req, res) => {
           ),
         });
       }
+
+      //화면에서 가져온 루틴을 다시 저장합니다.
       const routine = await Routine.create({
         userId,
         routineName,
@@ -220,6 +227,7 @@ const routineBookmark = async (req, res) => {
       }
     );
 
+    //캐시 초기화
     initRoutineCaching(userId);
     res.json({ ok: true, routineId: id, routineName });
   } catch (error) {
@@ -248,6 +256,8 @@ const routineRecord = async (req, res) => {
         where: { id },
       }
     );
+
+    //캐시초기화
     await deleteCacheById(`routineDetail-${userId}-${id}`);
     initRoutineCaching(userId);
     res.json({ ok: true });
@@ -257,7 +267,7 @@ const routineRecord = async (req, res) => {
   }
 };
 
-//루틴수정
+//루틴수정 - 하나의 API에서 기존의 루틴안에 운동을 추가하거나 삭제할 수 있게함.
 const routineUpdate = async (req, res, next) => {
   const userId = req.userId;
   const routineId = req.params.routineId;
@@ -268,12 +278,14 @@ const routineUpdate = async (req, res, next) => {
       attributes: ['id'],
       where: { routineId },
     });
+    //기존 루틴과 변경된 루틴의 운동을 비교.
     const routineExerciseIds = routineExercises.map((exercise) => exercise.id);
     const myExerciseIds = myExercise.map((exercise) => exercise.id);
-
     let filterIds = routineExerciseIds.filter(function (id) {
       return !myExerciseIds.includes(id);
     });
+
+    //비교해서 필터링된 운동을 삭제
     if (filterIds.length > 0) {
       for (let i = 0; i < filterIds.length; i++) {
         await Routine_Exercise.destroy({
@@ -282,6 +294,7 @@ const routineUpdate = async (req, res, next) => {
       }
     }
 
+    //운동의 순서가 변경될 수 있어서 order를 업데이트
     for (let i = 0; i < myExercise.length; i++) {
       const { set, id } = myExercise[i];
       await Routine_Exercise.update(
@@ -293,10 +306,12 @@ const routineUpdate = async (req, res, next) => {
         }
       );
 
+      //운동 자식 데이터인 set도 삭제
       await Set.destroy({
         where: { routineExerciseId: id },
       });
 
+      //set, 순서 변경
       for (let j = 0; j < set.length; j++) {
         const inputSet = set[j];
         inputSet.routineExerciseId = id;
