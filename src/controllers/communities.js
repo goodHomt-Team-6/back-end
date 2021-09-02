@@ -16,6 +16,7 @@ const allCommunities = async (req, res) => {
     const { userId, exerciseName } = req.query;
     let where;
     if (exerciseName) {
+      //운동이름이 포함되는 feed를 가져오는 함수
       const cachingWhere = await getOrSetCache(
         `communiy-${exerciseName}`,
         async () => {
@@ -43,6 +44,8 @@ const allCommunities = async (req, res) => {
     } else {
       where = '';
     }
+
+    //모든 커뮤니티 조회
     const result = await getOrSetCache(
       `allCommunity-${userId}-${exerciseName}`,
       async () => {
@@ -50,6 +53,7 @@ const allCommunities = async (req, res) => {
           attributes: {
             include: [
               [
+                //feed 게시글을 좋아한 사람 수 가져오는 쿼리
                 sequelize.literal(`(
                     SELECT COUNT(userId)
                       FROM like_user AS like_user
@@ -59,6 +63,7 @@ const allCommunities = async (req, res) => {
                 'totalLike',
               ],
               [
+                //해당 유저가 feed를 좋아했는지 안했는지 알려주는 쿼리
                 sequelize.literal(`(
                     SELECT IF( COUNT(userId) > 0, true, false) as isLiked
                       FROM like_user AS like_user
@@ -144,6 +149,8 @@ const communityEnroll = async (req, res) => {
       req.body;
 
     const userId = req.userId;
+
+    //사용자가 처음 커뮤니티 등록 시에는 communiyNickname이 없음. 그럴 때는 body영역에 담아서 닉네임이 들어옴.
     const communityNickname =
       req.body.communityNickname || req.userInfo?.communityNickname;
 
@@ -159,6 +166,7 @@ const communityEnroll = async (req, res) => {
       for (let i = 0; i < myExercise.length; i++) {
         const { exerciseName, set } = myExercise[i];
 
+        //커뮤니티 캐시 삭제
         await deleteCacheById(`allCommunity-${userId}-${exerciseName}`);
         await deleteCacheById(`allCommunity-${userId}-undefined`);
 
@@ -199,6 +207,7 @@ const communityEnroll = async (req, res) => {
         }
       }
 
+      //처음 커뮤니티 등록시 커뮤니티 닉네임 업데이트
       if (!req.userInfo?.communityNickname) {
         await User.update(
           { communityNickname },
@@ -222,6 +231,7 @@ const communityDelete = async (req, res) => {
     const community = await Community.findOne({
       where: { id: communityId },
     });
+
     const exercise = await Community_Exercise.findAll({
       attributes: ['exerciseName'],
       where: { communityId },
