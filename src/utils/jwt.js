@@ -16,6 +16,7 @@ exports.jwtCreate = async (profile) => {
 
   const snsId = profile.data?.id || profile.id;
 
+  //refresh token 발급
   const refreshToken = jwt.sign({}, process.env.JWT_SECRET, {
     expiresIn: process.env.REFRESHTOKEN_EXPIRE,
   });
@@ -32,6 +33,8 @@ exports.jwtCreate = async (profile) => {
 
       basicInfo.id = exUser.id;
       basicInfo.finishTutorial = exUser.finishTutorial;
+
+      //카카오톡 사용자의 정보를 로그인 시마다 DB에 update
       await User.update(
         {
           ...basicInfo,
@@ -51,6 +54,7 @@ exports.jwtCreate = async (profile) => {
       basicInfo.id = user.id;
       basicInfo.finishTutorial = false;
     }
+    //access token 발급
     const accessToken = jwt.sign(basicInfo, process.env.JWT_SECRET, {
       expiresIn: process.env.ACCESSTOKEN_EXPIRE,
     });
