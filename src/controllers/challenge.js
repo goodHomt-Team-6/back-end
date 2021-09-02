@@ -1,4 +1,8 @@
 const { Op } = require('sequelize');
+const moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault('Asia/Seoul');
+
 const Challenge = require('../models/challenge');
 const Challenge_User = require('../models/challenge_user');
 const Challenge_Exercise = require('../models/challenge_exercise');
@@ -27,12 +31,15 @@ exports.allChallenge = async (req, res) => {
   }
 };
 
+//사용자별 챌린지 가져오기
 exports.challengeForUserBeforeJoin = async (req, res) => {
   const userId = req.userId;
   const query = req.query;
 
   let where;
   let isCompleted;
+
+  //사용자가 완료한 challenge 가져오기
   if (query.type === 'all') {
     isCompleted = true;
 
@@ -48,6 +55,7 @@ exports.challengeForUserBeforeJoin = async (req, res) => {
       },
     };
   }
+
   try {
     const result = await Challenge_User.findAll({
       where: {
@@ -75,32 +83,6 @@ exports.challengeForUserBeforeJoin = async (req, res) => {
   }
 };
 
-exports.challengeForUserAfterJoin = async (req, res) => {
-  const userId = req.userId;
-  try {
-    const result = await Challenge_User.findAll({
-      where: { userId },
-      include: {
-        model: Challenge,
-        as: 'Challenge',
-        attributes: [
-          'challengeName',
-          'challengeIntroduce',
-          'challengeDateTime',
-          'communityNickname',
-          'progressStatus',
-        ],
-        where: { progressStatus: 'end' },
-      },
-      order: [['createdAt', 'DESC']],
-    });
-    res.json({ ok: true, result });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(error);
-  }
-};
-
 //챌린지별 상세 데이터 가져오기
 exports.getChallengeDetail = async (req, res) => {
   const { challengeId } = req.params;
@@ -116,7 +98,7 @@ exports.getChallengeDetail = async (req, res) => {
 
 //챌린지 등록하기
 exports.makeChallenge = async (req, res) => {
-  const userId = 4;
+  const userId = req.userId;
   try {
     const {
       challengeName,
@@ -128,6 +110,11 @@ exports.makeChallenge = async (req, res) => {
       difficulty,
     } = req.body;
 
+    //챌린지 종료시간= 챌린지 시작시간 + runningTime
+    const endDateTime = moment(challengeDateTime, 'YYYYMMDDHHmm')
+      .add(runningTime, 'm')
+      .format('YYYYMMDDHHmm');
+
     let challenge;
     if (exercises) {
       challenge = await Challenge.create({
@@ -138,10 +125,10 @@ exports.makeChallenge = async (req, res) => {
         communityNickname,
         runningTime,
         difficulty,
-        endDateTime: sequelize.literal(
-          // `(SELECT TIMESTAMPDIFF(MINUTE, now(),  STR_TO_DATE('202108150200','%Y%m%d %H%i%s'))+1)`
-          `(SELECT DATE_FORMAT(DATE_ADD(STR_TO_DATE(${challengeDateTime},'%Y%m%d %H%i%s'), INTERVAL ${runningTime} MINUTE), '%Y%m%d%H%i') )`
-        ),
+        endDateTime,
+        // sequelize.literal(
+        //   `(SELECT DATE_FORMAT(DATE_ADD(STR_TO_DATE(${challengeDateTime},'%Y%m%d %H%i%s'), INTERVAL ${runningTime} MINUTE), '%Y%m%d%H%i') )`
+        // ),
       });
       for (let i = 0; i < exercises.length; i++) {
         const { exerciseName, set } = exercises[i];
@@ -167,9 +154,10 @@ exports.makeChallenge = async (req, res) => {
       }
     }
 
-    const scheduleChallenge = await Challenge.findByPk(challenge.id);
-    const endDateTime = scheduleChallenge.endDateTime;
+    // const scheduleChallenge = await Challenge.findByPk(challenge.id);
+    // const endDateTime = scheduleChallenge.endDateTime;
 
+    //스케쥴 시작
     startSchedule(challengeDateTime, endDateTime, challenge.id);
 
     res.status(200).send({ ok: true });
