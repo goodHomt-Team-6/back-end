@@ -305,7 +305,6 @@ const routineUpdate = async (req, res, next) => {
       }
     }
 
-    await deleteCacheById(`routineDetail-${userId}-${routineId}`);
     initRoutineCaching(userId);
     res.status(200).send({ ok: true });
   } catch (error) {
