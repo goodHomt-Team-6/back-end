@@ -98,7 +98,7 @@ exports.getChallengeDetail = async (req, res) => {
 
 //챌린지 등록하기
 exports.makeChallenge = async (req, res) => {
-  const userId = req.userId;
+  const userId = 4;
   try {
     const {
       challengeName,
