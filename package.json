@@ -8,7 +8,6 @@
     "start": "cross-env NODE_ENV=production pm2-runtime app.js",
     "dev": "nodemon src/app.js",
     "test": "exit",
-    "build": "babel /back-end  dist",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage"
   },
@@ -34,8 +33,6 @@
     "multer": "^1.4.2",
     "mysql2": "^2.2.5",
     "nunjucks": "^3.2.3",
-    "passport": "^0.4.1",
-    "passport-google-oauth20": "^2.0.0",
     "redis": "^3.1.2",
     "request": "^2.88.2",
     "sequelize": "^6.6.5",
